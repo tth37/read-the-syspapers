@@ -1,0 +1,80 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ConferenceCard from "../components/ConferenceCard.astro";
+import { paperHref } from "../lib/paths";
+
+const conferences = await getCollection("conferences");
+const papers = await getCollection("papers");
+
+const paperCountByConf: Record<string, number> = {};
+for (const p of papers) {
+  const confId = p.data.conference.id;
+  paperCountByConf[confId] = (paperCountByConf[confId] ?? 0) + 1;
+}
+
+const byVenue = new Map<string, typeof conferences>();
+for (const c of conferences) {
+  const list = byVenue.get(c.data.venue) ?? [];
+  list.push(c);
+  byVenue.set(c.data.venue, list);
+}
+
+const venueOrder = Array.from(byVenue.keys()).sort();
+for (const v of venueOrder) {
+  byVenue.get(v)!.sort((a, b) => b.data.year - a.data.year);
+}
+
+const recent = papers
+  .slice()
+  .sort((a, b) => b.data.summary_date.getTime() - a.data.summary_date.getTime())
+  .slice(0, 6);
+
+function paperSlug(id: string): string {
+  const parts = id.split("/");
+  return parts[parts.length - 1];
+}
+---
+
+<BaseLayout title="read-the-syspapers" description="PhD-depth summaries of systems top conferences.">
+  <section class="hero">
+    <h1>read the sys papers</h1>
+    <p>
+      Long-form summaries of papers from systems top conferences — OSDI, SOSP, NSDI, ATC,
+      EuroSys, ASPLOS, FAST, MLSys, and more. Each summary is produced by a coding agent
+      (Claude Code, Codex, …) following a shared template, and records which agent wrote it.
+    </p>
+  </section>
+
+  {recent.length > 0 && (
+    <section>
+      <h2>Recently summarized</h2>
+      <ul class="paper-list">
+        {recent.map((p) => (
+          <li>
+            <div class="title"><a href={paperHref(p.data.conference.id, paperSlug(p.id))}>{p.data.title}</a></div>
+            <div class="authors">{p.data.authors.slice(0, 3).join(", ")}{p.data.authors.length > 3 ? ", et al." : ""} · {p.data.conference.id}</div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {venueOrder.map((venue) => (
+    <section>
+      <h2>{venue}</h2>
+      <div class="grid">
+        {byVenue.get(venue)!.map((c) => (
+          <ConferenceCard
+            id={c.id}
+            venue={c.data.venue}
+            year={c.data.year}
+            title={c.data.title}
+            overviewStatus={c.data.overview_status}
+            paperCount={paperCountByConf[c.id] ?? 0}
+          />
+        ))}
+      </div>
+    </section>
+  ))}
+</BaseLayout>

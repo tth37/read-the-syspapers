@@ -1,0 +1,65 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PaperCard from "../../components/PaperCard.astro";
+import WrittenByBadge from "../../components/WrittenByBadge.astro";
+
+export async function getStaticPaths() {
+  const conferences = await getCollection("conferences");
+  return conferences.map((c) => ({ params: { id: c.id }, props: { conf: c } }));
+}
+
+const { conf } = Astro.props;
+const { Content } = await render(conf);
+
+const papers = (await getCollection("papers")).filter((p) => p.data.conference.id === conf.id);
+
+papers.sort((a, b) => {
+  if (a.data.star !== b.data.star) return a.data.star ? -1 : 1;
+  return a.data.title.localeCompare(b.data.title);
+});
+
+function paperSlug(id: string): string {
+  const parts = id.split("/");
+  return parts[parts.length - 1];
+}
+---
+
+<BaseLayout title={conf.data.title} description={`Overview of ${conf.data.title}`}>
+  <div class="hero">
+    <p class="meta">{conf.data.venue} · {conf.data.year}{conf.data.location && ` · ${conf.data.location}`}{conf.data.dates && ` · ${conf.data.dates}`}</p>
+    <h1>{conf.data.title}</h1>
+    <p>
+      <a href={conf.data.url} target="_blank" rel="noopener">official site</a>
+      {conf.data.paper_count_expected !== undefined && <> · {papers.length} / {conf.data.paper_count_expected} papers summarized</>}
+    </p>
+    <WrittenByBadge writtenBy={conf.data.written_by} date={conf.data.summary_date} />
+  </div>
+
+  <section class="prose">
+    <Content />
+  </section>
+
+  <section>
+    <h2>Papers</h2>
+    {papers.length === 0 ? (
+      <p class="meta">No summaries yet. Run the agent harness: see <code>prompts/conference-overview.md</code>.</p>
+    ) : (
+      <ul class="paper-list">
+        {papers.map((p) => (
+          <PaperCard
+            conferenceId={conf.id}
+            slug={paperSlug(p.id)}
+            title={p.data.title}
+            authors={p.data.authors}
+            affiliations={p.data.affiliations}
+            tags={p.data.tags}
+            star={p.data.star}
+            writtenBy={p.data.written_by}
+            summaryDate={p.data.summary_date}
+          />
+        ))}
+      </ul>
+    )}
+  </section>
+</BaseLayout>

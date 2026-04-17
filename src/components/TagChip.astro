@@ -1,0 +1,11 @@
+---
+import { tagHref } from "../lib/paths";
+
+interface Props {
+  tag: string;
+}
+
+const { tag } = Astro.props;
+---
+
+<a class="chip" href={tagHref(tag)}>#{tag}</a>

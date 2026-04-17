@@ -1,0 +1,53 @@
+---
+import { getCollection, getEntry, render } from "astro:content";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import TagChip from "../../../components/TagChip.astro";
+import WrittenByBadge from "../../../components/WrittenByBadge.astro";
+import { conferenceHref } from "../../../lib/paths";
+
+export async function getStaticPaths() {
+  const papers = await getCollection("papers");
+  return papers.map((p) => {
+    const confId = p.data.conference.id;
+    const parts = p.id.split("/");
+    const slug = parts[parts.length - 1];
+    return {
+      params: { conference: confId, slug },
+      props: { paper: p, confId },
+    };
+  });
+}
+
+const { paper, confId } = Astro.props;
+const { Content } = await render(paper);
+const conf = await getEntry("conferences", confId);
+const d = paper.data;
+---
+
+<BaseLayout title={d.title} description={`Summary of ${d.title}`}>
+  <div class="hero">
+    <p class="meta">
+      <a href={conferenceHref(confId)}>{conf?.data.title ?? confId}</a>
+    </p>
+    <h1>{d.star && <span title="must-read">★ </span>}{d.title}</h1>
+    <p class="meta">
+      {d.authors.join(", ")}
+      {d.affiliations.length > 0 && <> — <em>{d.affiliations.join(" · ")}</em></>}
+    </p>
+    <p>
+      {d.pdf_url && <a href={d.pdf_url} target="_blank" rel="noopener">PDF</a>}
+      {d.code_url && <> · <a href={d.code_url} target="_blank" rel="noopener">code</a></>}
+      {d.project_url && <> · <a href={d.project_url} target="_blank" rel="noopener">project</a></>}
+    </p>
+    <div>
+      {d.tags.map((t) => <TagChip tag={t} />)}
+    </div>
+    <div style="margin-top:0.6rem">
+      <WrittenByBadge writtenBy={d.written_by} date={d.summary_date} />
+    </div>
+  </div>
+
+  <article class="prose">
+    <Content />
+  </article>
+</BaseLayout>

@@ -1,0 +1,21 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="About">
+  <h1>About</h1>
+  <p>
+    <strong>read-the-syspapers</strong> is a personal, agent-assisted reading log for systems
+    top-conference papers. Each summary is a structured, PhD-depth write-up: problem, key
+    insight, design, evaluation, novelty, limitations, related work.
+  </p>
+  <p>
+    Summaries are produced by coding agents (Claude Code, Codex, Gemini, Cursor, Aider) driven
+    by the shared harness in <code>AGENTS.md</code> and <code>prompts/</code>. Every summary
+    records which agent produced it in the <code>written_by</code> frontmatter field, so you
+    can compare how different agents handle the same paper.
+  </p>
+  <p>
+    The stack is Astro + content collections + Pagefind, deployed to GitHub Pages.
+  </p>
+</BaseLayout>

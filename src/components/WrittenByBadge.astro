@@ -1,0 +1,14 @@
+---
+interface Props {
+  writtenBy: string | null;
+  date?: Date | null;
+}
+
+const { writtenBy, date } = Astro.props;
+const label = writtenBy ?? "not yet summarized";
+const dateStr = date ? date.toISOString().slice(0, 10) : null;
+---
+
+<span class="written-by" title={dateStr ? `summarized ${dateStr}` : "awaiting summary"}>
+  written by: {label}{dateStr && ` · ${dateStr}`}
+</span>

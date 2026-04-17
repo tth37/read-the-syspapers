@@ -1,0 +1,25 @@
+---
+import { conferenceHref } from "../lib/paths";
+
+interface Props {
+  id: string;
+  venue: string;
+  year: number;
+  title: string;
+  overviewStatus: "pending" | "in-progress" | "complete";
+  paperCount?: number;
+}
+
+const { id, venue, year, title, overviewStatus, paperCount } = Astro.props;
+---
+
+<a class="card" href={conferenceHref(id)}>
+  <span class="sub">{venue} · {year}</span>
+  <span class="title">{title}</span>
+  <span class={`chip status-${overviewStatus}`}>
+    {overviewStatus === "complete" ? "overview complete" : overviewStatus === "in-progress" ? "in progress" : "awaiting summary"}
+  </span>
+  {paperCount !== undefined && paperCount > 0 && (
+    <span class="sub">{paperCount} paper{paperCount === 1 ? "" : "s"} summarized</span>
+  )}
+</a>

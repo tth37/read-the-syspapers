@@ -1,0 +1,19 @@
+---
+import { url } from "../lib/paths";
+const pagefindJs = url("/pagefind/pagefind-ui.js");
+const pagefindCss = url("/pagefind/pagefind-ui.css");
+---
+
+<link rel="stylesheet" href={pagefindCss} />
+<div id="search" data-pagefind-ignore></div>
+<script type="module" define:vars={{ pagefindJs, basePath: url("/pagefind/") }}>
+  try {
+    const { PagefindUI } = await import(pagefindJs);
+    new PagefindUI({ element: "#search", bundlePath: basePath, showImages: false });
+  } catch (e) {
+    const el = document.getElementById("search");
+    if (el) {
+      el.innerHTML = '<p class="meta">Search index not built yet. Run <code>npm run build</code> locally.</p>';
+    }
+  }
+</script>

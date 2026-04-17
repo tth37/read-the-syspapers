@@ -1,0 +1,42 @@
+---
+import "../styles/global.css";
+import { url } from "../lib/paths";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+const pageTitle = title === "read-the-syspapers" ? title : `${title} · read-the-syspapers`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="icon" type="image/svg+xml" href={url("/favicon.svg")} />
+  </head>
+  <body>
+    <header class="site">
+      <div class="inner">
+        <a class="brand" href={url("/")}>read-the-syspapers</a>
+        <nav>
+          <a href={url("/conferences")}>Conferences</a>
+          <a href={url("/tags")}>Tags</a>
+          <a href={url("/search")}>Search</a>
+          <a href={url("/about")}>About</a>
+        </nav>
+      </div>
+    </header>
+    <main class="container">
+      <slot />
+    </main>
+    <footer class="site">
+      PhD-depth summaries of systems papers · produced by coding agents · updated continuously
+    </footer>
+  </body>
+</html>

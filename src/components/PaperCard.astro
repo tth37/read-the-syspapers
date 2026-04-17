@@ -1,0 +1,36 @@
+---
+import { paperHref } from "../lib/paths";
+import TagChip from "./TagChip.astro";
+import WrittenByBadge from "./WrittenByBadge.astro";
+
+interface Props {
+  conferenceId: string;
+  slug: string;
+  title: string;
+  authors: string[];
+  affiliations?: string[];
+  tags: string[];
+  star: boolean;
+  writtenBy: string;
+  summaryDate: Date;
+}
+
+const { conferenceId, slug, title, authors, affiliations, tags, star, writtenBy, summaryDate } = Astro.props;
+const authorLine = authors.slice(0, 4).join(", ") + (authors.length > 4 ? ", et al." : "");
+const affLine = affiliations && affiliations.length > 0 ? affiliations.slice(0, 3).join(" · ") : null;
+---
+
+<li>
+  <div class="title">
+    {star && <span title="must-read">★ </span>}
+    <a href={paperHref(conferenceId, slug)}>{title}</a>
+  </div>
+  <div class="authors">
+    {authorLine}
+    {affLine && <> — {affLine}</>}
+  </div>
+  <div style="margin-top:0.35rem">
+    {tags.map((t) => <TagChip tag={t} />)}
+    <WrittenByBadge writtenBy={writtenBy} date={summaryDate} />
+  </div>
+</li>
