@@ -1,19 +1,25 @@
 ---
-import { url } from "../lib/paths";
-const pagefindJs = url("/pagefind/pagefind-ui.js");
-const pagefindCss = url("/pagefind/pagefind-ui.css");
+import { t } from "../lib/i18n";
+import type { Lang } from "../lib/paths";
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const pagefindJs = `${base}/pagefind/pagefind-ui.js`;
+const pagefindCss = `${base}/pagefind/pagefind-ui.css`;
+const notBuilt = t(lang, "search.not_built");
 ---
 
 <link rel="stylesheet" href={pagefindCss} />
 <div id="search" data-pagefind-ignore></div>
-<script type="module" define:vars={{ pagefindJs, basePath: url("/pagefind/") }}>
+<script type="module" define:vars={{ pagefindJs, basePath: `${base}/pagefind/`, notBuilt }}>
   try {
     const { PagefindUI } = await import(pagefindJs);
     new PagefindUI({ element: "#search", bundlePath: basePath, showImages: false });
   } catch (e) {
     const el = document.getElementById("search");
-    if (el) {
-      el.innerHTML = '<p class="meta">Search index not built yet. Run <code>npm run build</code> locally.</p>';
-    }
+    if (el) el.innerHTML = `<p class="meta">${notBuilt}</p>`;
   }
 </script>

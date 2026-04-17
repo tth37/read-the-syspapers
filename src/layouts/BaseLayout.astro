@@ -1,42 +1,63 @@
 ---
 import "../styles/global.css";
-import { url } from "../lib/paths";
+import { LANGS, homeHref, conferencesHref, tagsHref, searchHref, aboutHref, url } from "../lib/paths";
+import type { Lang } from "../lib/paths";
+import { t, UI } from "../lib/i18n";
 
 interface Props {
   title: string;
   description?: string;
+  lang: Lang;
+  currentPath?: string;
+  wide?: boolean;
 }
 
-const { title, description } = Astro.props;
-const pageTitle = title === "read-the-syspapers" ? title : `${title} · read-the-syspapers`;
+const { title, description, lang, currentPath, wide } = Astro.props;
+const pageTitle = title === UI[lang]["home.brand"] ? title : `${title} · ${UI[lang]["home.brand"]}`;
+
+// For the language switch link, rewrite the locale segment if we know the current URL.
+const thisPath = currentPath ?? Astro.url.pathname;
+function switchTo(target: Lang): string {
+  const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const stripped = thisPath.startsWith(base) ? thisPath.slice(base.length) : thisPath;
+  const withoutLang = stripped.replace(/^\/(en|zh-cn)(\/|$)/, "/");
+  return `${base}/${target}${withoutLang === "" ? "/" : withoutLang}`;
+}
+
+const otherLangs = LANGS.filter((l) => l !== lang);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang === "zh-cn" ? "zh-CN" : "en"}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
     {description && <meta name="description" content={description} />}
-    <link rel="icon" type="image/svg+xml" href={url("/favicon.svg")} />
+    <link rel="icon" type="image/svg+xml" href={url(lang, "/favicon.svg").replace(`/${lang}/favicon.svg`, "/favicon.svg")} />
   </head>
   <body>
     <header class="site">
       <div class="inner">
-        <a class="brand" href={url("/")}>read-the-syspapers</a>
+        <a class="brand" href={homeHref(lang)}>{UI[lang]["home.brand"]}</a>
         <nav>
-          <a href={url("/conferences")}>Conferences</a>
-          <a href={url("/tags")}>Tags</a>
-          <a href={url("/search")}>Search</a>
-          <a href={url("/about")}>About</a>
+          <a href={conferencesHref(lang)}>{t(lang, "nav.conferences")}</a>
+          <a href={tagsHref(lang)}>{t(lang, "nav.tags")}</a>
+          <a href={searchHref(lang)}>{t(lang, "nav.search")}</a>
+          <a href={aboutHref(lang)}>{t(lang, "nav.about")}</a>
         </nav>
+        <div class="lang-switch" aria-label={t(lang, "lang.switch_label")}>
+          {otherLangs.map((l) => (
+            <a href={switchTo(l)} data-lang={l}>{l === "en" ? "EN" : "中文"}</a>
+          ))}
+        </div>
       </div>
     </header>
-    <main class="container">
+    <main class={wide ? "container wide" : "container"}>
       <slot />
     </main>
     <footer class="site">
-      PhD-depth summaries of systems papers · produced by coding agents · updated continuously
+      {t(lang, "footer.blurb")}
     </footer>
   </body>
 </html>

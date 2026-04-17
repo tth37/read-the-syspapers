@@ -1,0 +1,154 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PaperCard from "../../../components/PaperCard.astro";
+import WrittenByBadge from "../../../components/WrittenByBadge.astro";
+import { LANGS, idLang, baseSlug, paperParts } from "../../../lib/paths";
+import type { Lang } from "../../../lib/paths";
+import { t } from "../../../lib/i18n";
+
+export async function getStaticPaths() {
+  const conferences = await getCollection("conferences");
+  const out: { params: { lang: Lang; id: string }; props: { conf: (typeof conferences)[number] } }[] = [];
+  for (const c of conferences) {
+    const lang = idLang(c.id);
+    const id = baseSlug(c.id);
+    out.push({ params: { lang, id }, props: { conf: c } });
+  }
+  return out;
+}
+
+const { conf } = Astro.props;
+const lang = Astro.params.lang as Lang;
+const confBase = baseSlug(conf.id);
+const { Content } = await render(conf);
+
+const allPapers = await getCollection("papers");
+const papers = allPapers.filter((p) => {
+  const parts = paperParts(p.id);
+  return parts.lang === lang && parts.conference === confBase;
+});
+
+// Group papers by category id; order categories as declared in conf.data.categories,
+// with "uncategorized" at the end when relevant. Within a category, order: starred first,
+// then by title.
+type Paper = (typeof papers)[number];
+const groups = new Map<string, Paper[]>();
+for (const p of papers) {
+  const key = p.data.category ?? "__uncategorized__";
+  const list = groups.get(key) ?? [];
+  list.push(p);
+  groups.set(key, list);
+}
+for (const list of groups.values()) {
+  list.sort((a, b) => {
+    if (a.data.star !== b.data.star) return a.data.star ? -1 : 1;
+    return a.data.title.localeCompare(b.data.title);
+  });
+}
+
+// Build ordered category list from conference frontmatter, then append any uncategorized
+// group (and any orphan categories that papers reference but the conf doesn't declare).
+const declared = conf.data.categories.map((c) => c.id);
+const orphanCats = Array.from(groups.keys()).filter((k) => k !== "__uncategorized__" && !declared.includes(k));
+const categoryOrder: { id: string; title: string; description?: string; orphan?: boolean; uncategorized?: boolean }[] = [];
+for (const c of conf.data.categories) {
+  if (groups.has(c.id)) categoryOrder.push({ id: c.id, title: c.title, description: c.description });
+}
+for (const id of orphanCats) {
+  categoryOrder.push({ id, title: id, orphan: true });
+}
+if (groups.has("__uncategorized__")) {
+  categoryOrder.push({ id: "uncategorized", title: t(lang, "conferences.uncategorized"), uncategorized: true });
+}
+
+function anchor(cat: { id: string; uncategorized?: boolean }) {
+  return cat.uncategorized ? "uncategorized" : cat.id;
+}
+---
+
+<BaseLayout title={conf.data.title} description={`Overview of ${conf.data.title}`} lang={lang} wide={papers.length > 0}>
+  <div class="hero">
+    <p class="meta">{conf.data.venue} · {conf.data.year}{conf.data.location && ` · ${conf.data.location}`}{conf.data.dates && ` · ${conf.data.dates}`}</p>
+    <h1>{conf.data.title}</h1>
+    <p>
+      <a href={conf.data.url} target="_blank" rel="noopener">{t(lang, "conferences.official_site")}</a>
+      {conf.data.paper_count_expected !== undefined && <> · {papers.length} / {conf.data.paper_count_expected} {t(lang, "conferences.papers_summarized")}</>}
+    </p>
+    <WrittenByBadge lang={lang} writtenBy={conf.data.written_by} date={conf.data.summary_date} />
+  </div>
+
+  {papers.length === 0 ? (
+    <>
+      <section class="prose"><Content /></section>
+      <p class="meta">{t(lang, "conferences.no_papers")}</p>
+    </>
+  ) : (
+    <div class="toc-layout">
+      <div>
+        <section class="prose">
+          <Content />
+        </section>
+        {categoryOrder.map((cat) => {
+          const list = cat.uncategorized ? groups.get("__uncategorized__")! : groups.get(cat.id)!;
+          return (
+            <section class="category-block" id={anchor(cat)}>
+              <h2>{cat.title} <span class="meta" style="font-weight:normal">({list.length})</span></h2>
+              {cat.description && <p class="category-desc">{cat.description}</p>}
+              <ul class="paper-list">
+                {list.map((p) => {
+                  const { slug } = paperParts(p.id);
+                  return (
+                    <PaperCard
+                      lang={lang}
+                      conferenceId={confBase}
+                      slug={slug}
+                      title={p.data.title}
+                      oneline={p.data.oneline}
+                      authors={p.data.authors}
+                      affiliations={p.data.affiliations}
+                      tags={p.data.tags}
+                      star={p.data.star}
+                      writtenBy={p.data.written_by}
+                      summaryDate={p.data.summary_date}
+                    />
+                  );
+                })}
+              </ul>
+            </section>
+          );
+        })}
+      </div>
+      <aside class="toc-layout__toc" aria-label={t(lang, "conferences.toc")}>
+        <div class="toc-header">{t(lang, "conferences.toc")}</div>
+        <ol>
+          {categoryOrder.map((cat) => {
+            const list = cat.uncategorized ? groups.get("__uncategorized__")! : groups.get(cat.id)!;
+            return (
+              <li><a href={`#${anchor(cat)}`}>{cat.title}<span class="count">{list.length}</span></a></li>
+            );
+          })}
+        </ol>
+      </aside>
+    </div>
+  )}
+
+  <script>
+    // Highlight the TOC entry matching the category currently in view.
+    const toc = document.querySelector(".toc-layout__toc");
+    if (toc) {
+      const links = Array.from(toc.querySelectorAll<HTMLAnchorElement>("a"));
+      const byId = new Map(links.map((a) => [a.hash.slice(1), a]));
+      const observer = new IntersectionObserver((entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            for (const a of links) a.classList.remove("is-active");
+            const a = byId.get(e.target.id);
+            if (a) a.classList.add("is-active");
+          }
+        }
+      }, { rootMargin: "-20% 0px -70% 0px", threshold: 0 });
+      for (const section of document.querySelectorAll(".category-block")) observer.observe(section);
+    }
+  </script>
+</BaseLayout>

@@ -1,12 +1,15 @@
 ---
 import { paperHref } from "../lib/paths";
+import type { Lang } from "../lib/paths";
 import TagChip from "./TagChip.astro";
 import WrittenByBadge from "./WrittenByBadge.astro";
 
 interface Props {
+  lang: Lang;
   conferenceId: string;
   slug: string;
   title: string;
+  oneline?: string;
   authors: string[];
   affiliations?: string[];
   tags: string[];
@@ -15,7 +18,7 @@ interface Props {
   summaryDate: Date;
 }
 
-const { conferenceId, slug, title, authors, affiliations, tags, star, writtenBy, summaryDate } = Astro.props;
+const { lang, conferenceId, slug, title, oneline, authors, affiliations, tags, star, writtenBy, summaryDate } = Astro.props;
 const authorLine = authors.slice(0, 4).join(", ") + (authors.length > 4 ? ", et al." : "");
 const affLine = affiliations && affiliations.length > 0 ? affiliations.slice(0, 3).join(" · ") : null;
 ---
@@ -23,14 +26,15 @@ const affLine = affiliations && affiliations.length > 0 ? affiliations.slice(0, 
 <li>
   <div class="title">
     {star && <span title="must-read">★ </span>}
-    <a href={paperHref(conferenceId, slug)}>{title}</a>
+    <a href={paperHref(lang, conferenceId, slug)}>{title}</a>
   </div>
   <div class="authors">
     {authorLine}
     {affLine && <> — {affLine}</>}
   </div>
+  {oneline && <p class="oneline">{oneline}</p>}
   <div style="margin-top:0.35rem">
-    {tags.map((t) => <TagChip tag={t} />)}
-    <WrittenByBadge writtenBy={writtenBy} date={summaryDate} />
+    {tags.map((t) => <TagChip lang={lang} tag={t} />)}
+    <WrittenByBadge lang={lang} writtenBy={writtenBy} date={summaryDate} />
   </div>
 </li>

@@ -1,11 +1,13 @@
 ---
 import { tagHref } from "../lib/paths";
+import type { Lang } from "../lib/paths";
 
 interface Props {
+  lang: Lang;
   tag: string;
 }
 
-const { tag } = Astro.props;
+const { lang, tag } = Astro.props;
 ---
 
-<a class="chip" href={tagHref(tag)}>#{tag}</a>
+<a class="chip" href={tagHref(lang, tag)}>#{tag}</a>

@@ -1,7 +1,10 @@
 ---
 import { conferenceHref } from "../lib/paths";
+import type { Lang } from "../lib/paths";
+import { t } from "../lib/i18n";
 
 interface Props {
+  lang: Lang;
   id: string;
   venue: string;
   year: number;
@@ -10,16 +13,18 @@ interface Props {
   paperCount?: number;
 }
 
-const { id, venue, year, title, overviewStatus, paperCount } = Astro.props;
+const { lang, id, venue, year, title, overviewStatus, paperCount } = Astro.props;
+const statusKey =
+  overviewStatus === "complete" ? "card.overview_complete" :
+  overviewStatus === "in-progress" ? "card.in_progress" :
+  "card.awaiting_summary";
 ---
 
-<a class="card" href={conferenceHref(id)}>
+<a class="card" href={conferenceHref(lang, id)}>
   <span class="sub">{venue} · {year}</span>
   <span class="title">{title}</span>
-  <span class={`chip status-${overviewStatus}`}>
-    {overviewStatus === "complete" ? "overview complete" : overviewStatus === "in-progress" ? "in progress" : "awaiting summary"}
-  </span>
+  <span class={`chip status-${overviewStatus}`}>{t(lang, statusKey)}</span>
   {paperCount !== undefined && paperCount > 0 && (
-    <span class="sub">{paperCount} paper{paperCount === 1 ? "" : "s"} summarized</span>
+    <span class="sub">{t(lang, paperCount === 1 ? "card.papers_count_one" : "card.papers_count_other", { n: paperCount })}</span>
   )}
 </a>

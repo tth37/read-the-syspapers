@@ -60,6 +60,10 @@ a:hover {
   padding: 2rem 1.25rem 4rem;
 }
 
+.container.wide {
+  max-width: 1120px;
+}
+
 header.site {
   border-bottom: 1px solid var(--border);
   padding: 1rem 1.25rem;
@@ -91,6 +95,27 @@ header.site nav {
 
 header.site nav a {
   color: var(--muted);
+}
+
+header.site .lang-switch {
+  margin-left: auto;
+  display: flex;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  font-family: var(--font-sans);
+}
+
+header.site .lang-switch a {
+  color: var(--muted);
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+header.site .lang-switch a:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  text-decoration: none;
 }
 
 footer.site {
@@ -273,6 +298,98 @@ blockquote {
   font-family: var(--font-sans);
   font-size: 0.85rem;
   color: var(--muted);
+}
+
+.paper-list .oneline {
+  margin: 0.35rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--fg);
+}
+
+.toc-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.toc-layout__toc {
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  border-left: 1px solid var(--border);
+  padding: 0.3rem 0 0.3rem 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.86rem;
+}
+
+.toc-layout__toc .toc-header {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 0.4rem;
+}
+
+.toc-layout__toc ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-layout__toc li {
+  margin: 0.25rem 0;
+}
+
+.toc-layout__toc a {
+  color: var(--muted);
+  display: block;
+  padding: 0.15rem 0;
+  line-height: 1.3;
+}
+
+.toc-layout__toc a:hover,
+.toc-layout__toc a.is-active {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.toc-layout__toc .count {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  margin-left: 0.35em;
+}
+
+@media (max-width: 900px) {
+  .toc-layout {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .toc-layout__toc {
+    position: static;
+    max-height: none;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    padding: 1rem 0 0;
+    order: -1;
+  }
+}
+
+.category-block {
+  margin-top: 2.5rem;
+}
+
+.category-block > h2 {
+  margin-top: 0;
+}
+
+.category-block .category-desc {
+  color: var(--muted);
+  font-family: var(--font-sans);
+  font-size: 0.93rem;
+  margin: 0 0 0.5rem;
 }
 
 .written-by {

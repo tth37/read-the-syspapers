@@ -1,0 +1,19 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Search from "../../components/Search.astro";
+import { LANGS } from "../../lib/paths";
+import type { Lang } from "../../lib/paths";
+import { t } from "../../lib/i18n";
+
+export async function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+---
+
+<BaseLayout title={t(lang, "search.title")} lang={lang}>
+  <h1>{t(lang, "search.title")}</h1>
+  <p class="meta">{t(lang, "search.hint")}</p>
+  <Search lang={lang} />
+</BaseLayout>

@@ -1,0 +1,87 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ConferenceCard from "../../components/ConferenceCard.astro";
+import { LANGS, paperHref, idLang, baseSlug, paperParts } from "../../lib/paths";
+import type { Lang } from "../../lib/paths";
+import { t, UI } from "../../lib/i18n";
+
+export async function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+
+const conferences = (await getCollection("conferences")).filter((c) => idLang(c.id) === lang);
+const papers = (await getCollection("papers")).filter((p) => paperParts(p.id).lang === lang);
+
+const paperCountByConf: Record<string, number> = {};
+for (const p of papers) {
+  const { conference } = paperParts(p.id);
+  paperCountByConf[conference] = (paperCountByConf[conference] ?? 0) + 1;
+}
+
+const byVenue = new Map<string, typeof conferences>();
+for (const c of conferences) {
+  const list = byVenue.get(c.data.venue) ?? [];
+  list.push(c);
+  byVenue.set(c.data.venue, list);
+}
+
+const venueOrder = Array.from(byVenue.keys()).sort();
+for (const v of venueOrder) {
+  byVenue.get(v)!.sort((a, b) => b.data.year - a.data.year);
+}
+
+const recent = papers
+  .slice()
+  .sort((a, b) => b.data.summary_date.getTime() - a.data.summary_date.getTime())
+  .slice(0, 6);
+---
+
+<BaseLayout title={UI[lang]["home.brand"]} description={t(lang, "home.tagline")} lang={lang}>
+  <section class="hero">
+    <h1>{UI[lang]["home.brand"]}</h1>
+    <p>{t(lang, "home.tagline")}</p>
+  </section>
+
+  {recent.length > 0 && (
+    <section>
+      <h2>{t(lang, "home.recent")}</h2>
+      <ul class="paper-list">
+        {recent.map((p) => {
+          const { conference, slug } = paperParts(p.id);
+          return (
+            <li>
+              <div class="title"><a href={paperHref(lang, conference, slug)}>{p.data.title}</a></div>
+              <div class="authors">{p.data.authors.slice(0, 3).join(", ")}{p.data.authors.length > 3 ? ", et al." : ""} · {conference}</div>
+              {p.data.oneline && <p class="oneline">{p.data.oneline}</p>}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  )}
+
+  {venueOrder.map((venue) => (
+    <section>
+      <h2>{venue}</h2>
+      <div class="grid">
+        {byVenue.get(venue)!.map((c) => {
+          const base = baseSlug(c.id);
+          return (
+            <ConferenceCard
+              lang={lang}
+              id={base}
+              venue={c.data.venue}
+              year={c.data.year}
+              title={c.data.title}
+              overviewStatus={c.data.overview_status}
+              paperCount={paperCountByConf[base] ?? 0}
+            />
+          );
+        })}
+      </div>
+    </section>
+  ))}
+</BaseLayout>

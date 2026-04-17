@@ -1,14 +1,18 @@
 ---
+import { t } from "../lib/i18n";
+import type { Lang } from "../lib/paths";
+
 interface Props {
+  lang: Lang;
   writtenBy: string | null;
   date?: Date | null;
 }
 
-const { writtenBy, date } = Astro.props;
-const label = writtenBy ?? "not yet summarized";
+const { lang, writtenBy, date } = Astro.props;
+const label = writtenBy ?? t(lang, "paper.not_yet_summarized");
 const dateStr = date ? date.toISOString().slice(0, 10) : null;
 ---
 
-<span class="written-by" title={dateStr ? `summarized ${dateStr}` : "awaiting summary"}>
-  written by: {label}{dateStr && ` · ${dateStr}`}
+<span class="written-by">
+  {t(lang, "paper.written_by_prefix")} {label}{dateStr && ` · ${dateStr}`}
 </span>

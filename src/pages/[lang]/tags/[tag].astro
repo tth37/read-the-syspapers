@@ -1,0 +1,61 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import PaperCard from "../../../components/PaperCard.astro";
+import { paperParts } from "../../../lib/paths";
+import type { Lang } from "../../../lib/paths";
+import { t } from "../../../lib/i18n";
+
+export async function getStaticPaths() {
+  const papers = await getCollection("papers");
+  const byLangTag = new Map<string, { lang: Lang; tag: string; papers: typeof papers }>();
+  for (const p of papers) {
+    const { lang } = paperParts(p.id);
+    for (const tag of p.data.tags) {
+      const key = `${lang}::${tag}`;
+      const entry = byLangTag.get(key) ?? { lang, tag, papers: [] };
+      entry.papers.push(p);
+      byLangTag.set(key, entry);
+    }
+  }
+  return Array.from(byLangTag.values()).map((entry) => ({
+    params: { lang: entry.lang, tag: entry.tag },
+    props: { papers: entry.papers, tag: entry.tag },
+  }));
+}
+
+const { papers, tag } = Astro.props;
+const lang = Astro.params.lang as Lang;
+
+papers.sort((a, b) => {
+  if (a.data.star !== b.data.star) return a.data.star ? -1 : 1;
+  return a.data.title.localeCompare(b.data.title);
+});
+
+const countKey = papers.length === 1 ? "tags.n_papers_one" : "tags.n_papers_other";
+---
+
+<BaseLayout title={`#${tag}`} lang={lang}>
+  <h1>#{tag}</h1>
+  <p class="meta">{t(lang, countKey, { n: papers.length })} <code>{tag}</code></p>
+  <ul class="paper-list">
+    {papers.map((p) => {
+      const { conference, slug } = paperParts(p.id);
+      return (
+        <PaperCard
+          lang={lang}
+          conferenceId={conference}
+          slug={slug}
+          title={p.data.title}
+          oneline={p.data.oneline}
+          authors={p.data.authors}
+          affiliations={p.data.affiliations}
+          tags={p.data.tags}
+          star={p.data.star}
+          writtenBy={p.data.written_by}
+          summaryDate={p.data.summary_date}
+        />
+      );
+    })}
+  </ul>
+</BaseLayout>

@@ -1,0 +1,59 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import TagChip from "../../../../components/TagChip.astro";
+import WrittenByBadge from "../../../../components/WrittenByBadge.astro";
+import { idLang, baseSlug, paperParts, conferenceHref } from "../../../../lib/paths";
+import type { Lang } from "../../../../lib/paths";
+import { t } from "../../../../lib/i18n";
+
+export async function getStaticPaths() {
+  const papers = await getCollection("papers");
+  return papers.map((p) => {
+    const { conference, slug, lang } = paperParts(p.id);
+    return { params: { lang, conference, slug }, props: { paper: p } };
+  });
+}
+
+const { paper } = Astro.props;
+const lang = Astro.params.lang as Lang;
+const { conference: confBase, slug } = paperParts(paper.id);
+const { Content } = await render(paper);
+
+const confs = await getCollection("conferences");
+const conf = confs.find((c) => baseSlug(c.id) === confBase && idLang(c.id) === lang);
+const confTitle = conf?.data.title ?? confBase;
+
+const category = paper.data.category
+  ? conf?.data.categories.find((c) => c.id === paper.data.category)
+  : undefined;
+---
+
+<BaseLayout title={paper.data.title} description={paper.data.oneline} lang={lang}>
+  <p class="meta">
+    <a href={conferenceHref(lang, confBase)}>{confTitle}</a>
+    {category && <> · {category.title}</>}
+  </p>
+  <h1>{paper.data.star && <span title="must-read">★ </span>}{paper.data.title}</h1>
+  <p class="oneline" style="font-size:1.05rem;margin-top:-.25rem">{paper.data.oneline}</p>
+  <p class="authors">
+    {paper.data.authors.join(", ")}
+    {paper.data.affiliations.length > 0 && <> — {paper.data.affiliations.join(" · ")}</>}
+  </p>
+
+  <div class="link-row">
+    {paper.data.pdf_url && <a href={paper.data.pdf_url} target="_blank" rel="noopener">{t(lang, "paper.pdf")}</a>}
+    {paper.data.doi_url && <a href={paper.data.doi_url} target="_blank" rel="noopener">{t(lang, "paper.doi")}</a>}
+    {paper.data.code_url && <a href={paper.data.code_url} target="_blank" rel="noopener">{t(lang, "paper.code")}</a>}
+    {paper.data.project_url && <a href={paper.data.project_url} target="_blank" rel="noopener">{t(lang, "paper.project")}</a>}
+  </div>
+
+  <div style="margin:.5rem 0 1.25rem 0">
+    {paper.data.tags.map((tag) => <TagChip lang={lang} tag={tag} />)}
+    <WrittenByBadge lang={lang} writtenBy={paper.data.written_by} date={paper.data.summary_date} />
+  </div>
+
+  <article class="prose">
+    <Content />
+  </article>
+</BaseLayout>

@@ -1,0 +1,49 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import ConferenceCard from "../../../components/ConferenceCard.astro";
+import { LANGS, idLang, baseSlug, paperParts } from "../../../lib/paths";
+import type { Lang } from "../../../lib/paths";
+import { t } from "../../../lib/i18n";
+
+export async function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+
+const conferences = (await getCollection("conferences")).filter((c) => idLang(c.id) === lang);
+const papers = (await getCollection("papers")).filter((p) => paperParts(p.id).lang === lang);
+
+const paperCountByConf: Record<string, number> = {};
+for (const p of papers) {
+  const { conference } = paperParts(p.id);
+  paperCountByConf[conference] = (paperCountByConf[conference] ?? 0) + 1;
+}
+
+conferences.sort((a, b) => {
+  if (a.data.year !== b.data.year) return b.data.year - a.data.year;
+  return a.data.venue.localeCompare(b.data.venue);
+});
+---
+
+<BaseLayout title={t(lang, "conferences.all")} lang={lang}>
+  <h1>{t(lang, "conferences.all")}</h1>
+  <p class="meta">{t(lang, "conferences.all.subtitle")}</p>
+  <div class="grid">
+    {conferences.map((c) => {
+      const base = baseSlug(c.id);
+      return (
+        <ConferenceCard
+          lang={lang}
+          id={base}
+          venue={c.data.venue}
+          year={c.data.year}
+          title={c.data.title}
+          overviewStatus={c.data.overview_status}
+          paperCount={paperCountByConf[base] ?? 0}
+        />
+      );
+    })}
+  </div>
+</BaseLayout>
