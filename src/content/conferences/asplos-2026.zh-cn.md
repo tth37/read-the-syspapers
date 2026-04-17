@@ -4,10 +4,12 @@ year: 2026
 title: "ASPLOS '26"
 location: "Pittsburgh, USA"
 dates: "March 22-26, 2026"
-url: "https://www.asplos-conference.org/asplos2026/"
-overview_status: pending
-written_by: null
-summary_date: null
+url: "https://www.asplos-conference.org/asplos2026/program/"
+paper_count_expected: 152
+overview_status: in-progress
+written_by: codex
+summary_date: 2026-04-18
+categories: []
 ---
 
-_暂无综述。请按照 [`prompts/conference-overview.md`](../../../prompts/conference-overview.md) 运行智能体流程以生成本页内容。_
+_综述撰写中。当前正根据 ASPLOS 2026 官方 proceedings 生成逐篇论文总结。_
