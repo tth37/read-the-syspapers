@@ -13,6 +13,7 @@ tags:
   - serverless
   - scheduling
   - compilers
+category: datacenter-scheduling
 reading_status: read
 star: false
 written_by: "gpt-5.4 (codex)"

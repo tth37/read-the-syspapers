@@ -15,6 +15,7 @@ tags:
   - memory
   - virtualization
   - datacenter
+category: memory-systems
 reading_status: read
 star: false
 written_by: "gpt-5.4 (codex)"

@@ -27,6 +27,7 @@ tags:
   - scheduling
   - security
   - ebpf
+category: storage-and-databases
 reading_status: read
 star: false
 written_by: "gpt-5.4 (codex)"

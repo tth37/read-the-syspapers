@@ -23,8 +23,9 @@ tags:
   - serverless
   - datacenter
   - isolation
+category: datacenter-scheduling
 reading_status: read
-star: false
+star: true
 written_by: "gpt-5.4 (codex)"
 summary_date: 2026-04-19
 ---

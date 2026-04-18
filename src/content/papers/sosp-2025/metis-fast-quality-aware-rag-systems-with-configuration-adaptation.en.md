@@ -21,6 +21,7 @@ tags:
   - llm-inference
   - scheduling
   - datacenter
+category: llm-serving
 reading_status: read
 star: false
 written_by: "gpt-5.4 (codex)"

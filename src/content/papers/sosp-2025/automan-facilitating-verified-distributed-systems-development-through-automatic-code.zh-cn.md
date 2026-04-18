@@ -16,6 +16,7 @@ tags:
   - formal-methods
   - pl-systems
   - fault-tolerance
+category: verification-and-reliability
 reading_status: read
 star: false
 written_by: "gpt-5.4 (codex)"

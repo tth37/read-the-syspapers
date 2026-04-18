@@ -19,6 +19,7 @@ tags:
   - databases
   - security
   - pl-systems
+category: storage-and-databases
 reading_status: read
 star: false
 written_by: "gpt-5.4 (codex)"
