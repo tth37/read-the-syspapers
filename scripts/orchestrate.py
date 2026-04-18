@@ -34,6 +34,22 @@ PROMPT_TEMPLATE_PATH = REPO_ROOT / "prompts" / "paper-summary-invocation.md"
 TAG_VOCAB_PATH = "prompts/tag-vocabulary.md"
 SMOKE_PROMPT = "say hi in one sentence, then exit. do not touch any files."
 
+# Substrings in stderr that identify a *transient* sub-agent failure (network blip,
+# upstream stream reset). Retrying is safe because the sub-agent is idempotent given
+# the same prompt. Real content/schema errors produce a clean non-zero exit and are
+# NOT matched here — those should stay `failed` so the orchestrator notices.
+_TRANSIENT_STDERR_PATTERNS = (
+    "stream closed before response.completed",
+    "ECONNRESET",
+    "ETIMEDOUT",
+    "EPIPE",
+    "socket hang up",
+    "Reconnecting",
+    "Client network socket disconnected",
+    "rate_limit_error",
+    "overloaded_error",
+)
+
 
 # ---------------------------------------------------------------------------
 # Agent registry
@@ -136,6 +152,7 @@ class Result:
     duration_s: float
     stderr_tail: str
     stdout_tail: str
+    attempts: int = 1
 
 
 def _tail(s: str, n: int = 4000) -> str:
@@ -170,17 +187,36 @@ def _render_prompt(template: str, entry: dict, agent: Agent, conference_slug: st
     return body.format(**{k: str(v) for k, v in repl.items()})
 
 
-def _run_subagent(
+def _coerce_text(maybe_bytes) -> str:
+    """subprocess.TimeoutExpired.stdout/stderr are bytes even when text=True.
+    Coerce defensively so we can concat with strs downstream."""
+    if maybe_bytes is None:
+        return ""
+    if isinstance(maybe_bytes, bytes):
+        return maybe_bytes.decode("utf-8", errors="replace")
+    return maybe_bytes
+
+
+def _is_transient(stderr: str) -> bool:
+    return any(p in stderr for p in _TRANSIENT_STDERR_PATTERNS)
+
+
+def _run_subagent_once(
     agent: Agent,
     prompt: str,
     log_path: pathlib.Path,
     timeout: int,
+    attempt: int,
 ) -> tuple[int, str, str, float]:
-    """Invoke the agent CLI; stream combined output to a per-paper log file."""
+    """Invoke the agent CLI once; stream combined output to a per-paper log file.
+    Appends to the log when attempt > 1 so retry history is visible."""
     cmd = agent.build_cmd(prompt)
     start = time.monotonic()
     log_path.parent.mkdir(parents=True, exist_ok=True)
-    with log_path.open("w") as log:
+    mode = "a" if attempt > 1 else "w"
+    with log_path.open(mode) as log:
+        if attempt > 1:
+            log.write(f"\n\n===== retry attempt {attempt} =====\n")
         log.write(f"$ {' '.join(cmd[:4])} …\n")
         log.flush()
         try:
@@ -193,11 +229,48 @@ def _run_subagent(
             )
         except subprocess.TimeoutExpired as e:
             log.write(f"\n[timeout after {timeout}s]\n")
-            return -1, e.stdout or "", (e.stderr or "") + f"\n[timeout after {timeout}s]", time.monotonic() - start
+            return (
+                -1,
+                _coerce_text(e.stdout),
+                _coerce_text(e.stderr) + f"\n[timeout after {timeout}s]",
+                time.monotonic() - start,
+            )
         log.write(proc.stdout or "")
         log.write("\n--- stderr ---\n")
         log.write(proc.stderr or "")
     return proc.returncode, proc.stdout or "", proc.stderr or "", time.monotonic() - start
+
+
+def _run_subagent(
+    agent: Agent,
+    prompt: str,
+    log_path: pathlib.Path,
+    timeout: int,
+    max_retries: int,
+) -> tuple[int, str, str, float, int]:
+    """Run a sub-agent with automatic retry on transient network errors.
+
+    Returns (returncode, stdout, stderr, total_duration_s, attempts_used).
+    Only transient stderr signatures trigger retries — real content failures pass through.
+    Backoff is linear (5s, 10s, 15s, …) capped by max_retries."""
+    total_start = time.monotonic()
+    attempts = 0
+    rc, stdout, stderr, _ = -1, "", "", 0.0
+    for attempt in range(1, max_retries + 2):  # max_retries retries + 1 initial
+        attempts = attempt
+        rc, stdout, stderr, _ = _run_subagent_once(
+            agent=agent, prompt=prompt, log_path=log_path,
+            timeout=timeout, attempt=attempt,
+        )
+        if rc == 0:
+            break
+        if attempt > max_retries:
+            break
+        if not _is_transient(stderr):
+            # Real failure (schema, fabrication refusal, etc). Don't burn retries.
+            break
+        time.sleep(5 * attempt)
+    return rc, stdout, stderr, time.monotonic() - total_start, attempts
 
 
 def make_worker(
@@ -208,6 +281,7 @@ def make_worker(
     log_dir: pathlib.Path,
     timeout: int,
     smoke: bool,
+    max_retries: int,
 ) -> Callable[[dict], Result]:
     def worker(entry: dict) -> Result:
         slug = entry["slug"]
@@ -223,11 +297,12 @@ def make_worker(
                 prompt = SMOKE_PROMPT
             else:
                 prompt = _render_prompt(prompt_template, entry, agent, conference_slug)
-            rc, stdout, stderr, dur = _run_subagent(
+            rc, stdout, stderr, dur, attempts = _run_subagent(
                 agent=agent,
                 prompt=prompt,
                 log_path=log_dir / f"{slug}.log",
                 timeout=timeout,
+                max_retries=max_retries,
             )
             ok = rc == 0
             manifest.update(
@@ -236,6 +311,7 @@ def make_worker(
                 last_error=None if ok else _tail(stderr, 2000),
                 finished_at=dt.datetime.utcnow().isoformat() + "Z",
                 duration_s=round(dur, 1),
+                attempts=attempts,
             )
             return Result(
                 slug=slug,
@@ -244,6 +320,7 @@ def make_worker(
                 duration_s=dur,
                 stderr_tail=_tail(stderr, 800),
                 stdout_tail=_tail(stdout, 800),
+                attempts=attempts,
             )
         except Exception as exc:  # worker-side bug; flip to failed, keep running
             manifest.update(
@@ -259,6 +336,7 @@ def make_worker(
                 duration_s=0.0,
                 stderr_tail=repr(exc),
                 stdout_tail="",
+                attempts=0,
             )
 
     return worker
@@ -330,6 +408,11 @@ def main() -> int:
         help="Per-sub-agent timeout in seconds (default: 1800).",
     )
     ap.add_argument(
+        "--max-retries", type=int, default=2,
+        help="Max auto-retries on transient network errors (default: 2). Non-transient "
+             "failures (schema, content) never retry regardless of this value.",
+    )
+    ap.add_argument(
         "--smoke", action="store_true",
         help="Smoke-test mode: send 'say hi' instead of the real prompt. Still flips "
              "manifest status so you can see the pipeline working end-to-end.",
@@ -397,6 +480,7 @@ def main() -> int:
         log_dir=log_dir,
         timeout=args.timeout,
         smoke=args.smoke,
+        max_retries=args.max_retries,
     )
 
     start = time.monotonic()
@@ -422,9 +506,10 @@ def main() -> int:
                 ok_count += 1
             else:
                 fail_count += 1
+            retry_tag = f" retries={res.attempts - 1}" if res.attempts > 1 else ""
             print(
                 f"[{completed}/{total}] {status} {slug}  "
-                f"rc={res.returncode} {res.duration_s:.1f}s"
+                f"rc={res.returncode} {res.duration_s:.1f}s{retry_tag}"
             )
             if not res.ok and res.stderr_tail.strip():
                 for line in res.stderr_tail.strip().splitlines()[-5:]:

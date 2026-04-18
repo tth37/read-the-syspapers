@@ -42,14 +42,83 @@ The per-paper summaries live under `src/content/papers/<conference_slug>/` as
 ## Body structure (both languages)
 
 ```markdown
+<one-paragraph at-a-glance intro, BEFORE Themes — not under a heading>
 ## Themes                 (## 主题, in Chinese)
 ## Notable trends         (## 值得关注的趋势)
 ## Must-read picks        (## 必读推荐)
 ## Stats                  (## 数据概览)
 ```
 
-Must-read picks use relative links: `[title](../papers/<conference_slug>/<paper-slug>.md)`.
-Astro resolves the link at build time; the `.md` extension is intentional.
+## Style rubric (authoritative — follow exactly)
+
+These patterns came out of the ASPLOS '26 and FAST '26 passes and are the house style.
+
+### 1. At-a-glance intro paragraph, before `## Themes`
+
+Not under a heading. One paragraph. Lead with the paper count, then name the 1–2
+tensions that define *this year's* program (not a generic venue description), then a
+nod to classical breadth preserved. 3–5 sentences, no bullets. Example shape:
+
+> _Venue '26_ brought **N papers** — a sprawling single-track program that doubles
+> as a map of where the community is investing. The distribution is almost
+> shockingly AI-heavy: roughly a third of the program is … At the same time,
+> _Venue_ kept its classical breadth — _area-1_, _area-2_, and _area-3_ all show up
+> in force.
+
+### 2. Every paper reference is an inline link
+
+Never write a bare system name in the overview body. Always:
+
+```markdown
+[SystemName](../papers/<conference_slug>/<paper-slug>.md)
+```
+
+- Relative path (`../papers/...`), **never** `/en/papers/...` or `/zh-cn/papers/...`
+  — those forms break one of the two language surfaces.
+- The `.md` extension is intentional; Astro resolves it at build time.
+- The visible text is the system name or a short phrase naming the contribution,
+  not the full paper title.
+
+### 3. Themes — 3 to 5 bullets, bold lead
+
+Each theme bullet:
+- Opens with a **bold lead sentence** naming the shift or pattern.
+- Cites 2–7 papers, each with an inline link (rule 2).
+- One sentence of context per cluster of papers is fine; avoid paragraph-long
+  ramblings. Themes are a higher level than categories — a theme may span
+  categories.
+
+### 4. Notable trends — 3 to 4 bullets, ≥3 papers each
+
+- One line per trend. Trend name in bold prose (not a heading).
+- At least 3 linked papers as evidence. If you can't find 3, it's not a trend yet
+  — drop it.
+- Prefer trends that name a *technique* ("speculate and recover", "per-core
+  primitives") over trends that name a *topic* ("sparsity", "LLM serving"). Topics
+  are already in Themes.
+
+### 5. Must-read picks — ≤ 5
+
+- At most 5. Space them across different tracks.
+- Format: `**[Name](../papers/<conf>/<slug>.md)** — one-line justification.`
+- Justification names the specific contribution or result (a number, a mechanism,
+  a community-infrastructure role), not adjectives like "excellent" or "impressive."
+
+### 6. Stats
+
+Short bullet list:
+- Papers summarized (actual count, not expected).
+- Category breakdown (counts per category, largest and smallest).
+- Tag count; flag newly-added tags if any.
+- Industry participation if notable (Apple / Alibaba / ByteDance / … on ≥1 paper
+  each is worth calling out; all-academic isn't).
+
+### 7. Chinese-file specifics
+
+The `.zh-cn.md` body mirrors the English structure — same intro paragraph, same
+theme bullets, same must-reads, same stats. Translate naturally (not
+word-for-word). Paper titles and system names stay in English; body prose is
+Simplified Chinese. Section headings translate per the table above.
 
 ## Frontmatter update
 

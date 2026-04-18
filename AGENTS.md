@@ -5,7 +5,9 @@ Instructions for coding agents working in this repository. Two roles exist:
 - **Orchestrator** — a long-lived session that plans a whole conference pass, prepares
   the manifest, dispatches per-paper sub-agents via [`scripts/orchestrate.py`](scripts/orchestrate.py),
   and synthesizes the final overview. In practice this is Claude Code. Start here:
-  [`prompts/conference-overview.md`](prompts/conference-overview.md).
+  [`prompts/conference-overview-quickstart.md`](prompts/conference-overview-quickstart.md)
+  for the terse recipe, [`prompts/conference-overview.md`](prompts/conference-overview.md)
+  for the long-form rationale.
 - **Sub-agent** — a short-lived process that owns exactly one paper. Invoked by the
   orchestrator script (via `codex exec` or `claude -p`) with a rendered prompt from
   [`prompts/paper-summary-invocation.md`](prompts/paper-summary-invocation.md). Its
@@ -32,7 +34,9 @@ different agents handle the same papers.
 | `src/pages/[lang]/…` | Every rendered page is locale-prefixed. URLs look like `/en/conferences/osdi-2025` and `/zh-cn/conferences/osdi-2025`. |
 | `prompts/` | Agent task prompts. |
 | `prompts/templates/` | Frontmatter + section skeletons to copy-paste into new content files. |
-| `scripts/orchestrate.py` | Pipeline orchestrator — spawns sub-agent CLIs in parallel, flips manifest status atomically. |
+| `scripts/orchestrate.py` | Pipeline orchestrator — spawns sub-agent CLIs in parallel, flips manifest status atomically. Auto-retries transient network errors. |
+| `scripts/manifest_helpers.py` | Building blocks for manifest assembly (bookmark probing, footer-offset detection, slug/path helpers, validation). CLI subcommands: `bookmarks`, `offset`, `validate`. |
+| `scripts/validate_paper.py` | Cheap pre-build validator for paper pairs (frontmatter parity, required H2s, tag vocabulary, `written_by` format). Run after every fan-out. |
 | `_inbox/` | Gitignored. Drop PDFs, proceedings archives, and run manifests here. |
 
 ## Hard rules (read these before doing anything)
@@ -73,9 +77,35 @@ different agents handle the same papers.
 10. **Do not push or open PRs** unless the user explicitly asks. Commit locally on a
     well-named branch and stop.
 
+## Orchestrator invariants (bake these in; stop re-deriving)
+
+When running a conference overview, these defaults are already known-good. Don't
+re-ask the user about them and don't improvise:
+
+- **Sub-agent + model.** `codex` with `gpt-5.4`. The orchestrator identity is
+  `"<current-claude-model> (Claude Code)"` — e.g. `"Claude Opus 4.7 (Claude Code)"`.
+- **Concurrency.** `5` for fan-out; `2` for `--retry-failed` (calmer on flaky paths).
+- **Timeout.** `2400s` per sub-agent. Long-paper PhD-depth summaries occasionally
+  hit the 1800s default.
+- **Auto-retry.** Built into orchestrate.py — 2 retries on transient stream
+  disconnects / rate limits / socket hangups. Don't wrap the script in external retry.
+- **Branch.** `overview/<slug>`; commit prefix `overview(<slug>):`; never push.
+- **Must-reads.** At most 5, each with a one-line justification, chosen to span
+  different tracks.
+- **Conference overview body.** Required structure: at-a-glance intro paragraph
+  before `## Themes` / `## 主题` → Themes (3–5 bullets) → Notable trends (3–4
+  bullets, each with ≥3 papers) → Must-read picks (≤5) → Stats. Every paper
+  reference in the overview is an inline markdown link of the form
+  `[Name](../papers/<slug>/<paper-slug>.md)` — never bare text, never
+  `/en/papers/...` or `/zh-cn/papers/...`. See
+  [`prompts/conference-synthesis.md`](prompts/conference-synthesis.md) for the
+  style rubric.
+
 ## Entry points by role
 
-- **Orchestrator** — starting a fresh conference pass → [`prompts/conference-overview.md`](prompts/conference-overview.md).
+- **Orchestrator** — fresh conference pass (terse recipe) → [`prompts/conference-overview-quickstart.md`](prompts/conference-overview-quickstart.md).
+- **Orchestrator** — long-form rationale / failure modes → [`prompts/conference-overview.md`](prompts/conference-overview.md).
+- **Orchestrator** — assembling `_inbox/<slug>/manifest.json` → [`prompts/manifest-building.md`](prompts/manifest-building.md).
 - **Orchestrator** — dispatching sub-agents → [`scripts/orchestrate.py`](scripts/orchestrate.py) (`--help` for flags).
 - **Orchestrator** — writing the conference-level synthesis after per-paper summaries land → [`prompts/conference-synthesis.md`](prompts/conference-synthesis.md).
 - **Sub-agent** — per-paper instructions (what sections to write, how deep) → [`prompts/paper-summary.md`](prompts/paper-summary.md).
