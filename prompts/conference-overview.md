@@ -1,11 +1,15 @@
-# Prompt: Conference overview pass
+# Prompt: Conference overview pass (orchestrator)
 
-You have been asked to produce a full overview of a systems top-conference — e.g.
-"Do an overview of OSDI 2025." This prompt is self-contained: you should be able to
-complete the task by following it, regardless of which coding agent is running.
+You are the **orchestrator** for a full conference pass — e.g. "Do an overview of
+OSDI 2026." In practice you are Claude Code, driving the work from a single long-lived
+session while farming per-paper summaries out to sub-agents (`codex exec` or `claude -p`)
+via [`../scripts/orchestrate.py`](../scripts/orchestrate.py). This split keeps your
+context focused on planning, categorization, and synthesis — the heavy PDF-reading
+happens inside short-lived sub-processes that each die with their own context.
 
-Before starting, read [`../AGENTS.md`](../AGENTS.md) for hard rules (agent identity,
-bilingual output, no fabrication, no committed PDFs, resumable manifest, micro-batches).
+Before starting, read [`../AGENTS.md`](../AGENTS.md) for hard rules (agent identity with
+model qualifier, bilingual output, no fabrication, no committed PDFs, resumable manifest,
+one paper per sub-agent).
 
 ---
 
@@ -13,11 +17,11 @@ bilingual output, no fabrication, no committed PDFs, resumable manifest, micro-b
 
 - Venue name (e.g. `OSDI`, `SOSP`, `NSDI`).
 - Year (4-digit).
-- **Optional but common**: a path to a locally-available proceedings ZIP or folder, if the
-  user has already downloaded PDFs (USENIX and ACM often block bulk scraping).
-- **Optional**: a page-range filter inside a combined proceedings PDF (e.g. "papers 1–20
-  of ASPLOS '26 proceedings volume 1, pages 1–340"). Resumability depends on this: a run
-  must be able to stop and pick up on a later invocation without redoing work.
+- **The full proceedings PDF(s)**, already dropped under `_inbox/<slug>/` by the user.
+  You do **not** download papers — assume the user has handed them over.
+- **Optional**: a page-range map (title → `volume`, `pdf_page_start`, `pdf_page_end`) if
+  the user has already parsed the proceedings ToC. If not, you parse the ToC yourself as
+  part of manifest generation.
 
 If any of these are missing, ask the user once, then proceed.
 
@@ -25,9 +29,11 @@ If any of these are missing, ask the user once, then proceed.
 
 ## Step 0 — Establish the manifest
 
-Create `_inbox/<slug>/manifest.json` if it does not exist. It is the **single source of
-truth** for which papers are in scope, where their PDFs live, and which ones have been
-summarized. Schema (one entry per paper):
+The manifest at `_inbox/<slug>/manifest.json` is the **single source of truth** for the
+run. Every sub-agent launch is keyed on it, and [`../scripts/orchestrate.py`](../scripts/orchestrate.py)
+flips statuses atomically (`pending` → `in-progress` → `done` | `failed`).
+
+Required per-entry shape (extra fields ok, but keep these):
 
 ```json
 {
@@ -38,10 +44,10 @@ summarized. Schema (one entry per paper):
   "doi_url": "https://doi.org/…",
   "pdf_url": "https://…",
   "volume": 1,
-  "pdf_path": "_inbox/asplos-2026/pdfs/kebab-case.pdf",
+  "pdf_path": "_inbox/asplos-2026/proceedings-vol1.pdf",
   "pdf_page_start": 17,
   "pdf_page_end": 33,
-  "category": "scheduling",
+  "category": "",
   "output_path_en": "src/content/papers/asplos-2026/kebab-case.en.md",
   "output_path_zh": "src/content/papers/asplos-2026/kebab-case.zh-cn.md",
   "status": "pending",
@@ -49,116 +55,118 @@ summarized. Schema (one entry per paper):
 }
 ```
 
-Valid `status` values: `pending`, `in-progress`, `done`, `skipped`, `failed`. On every
-restart, read the manifest first and resume from the first non-`done` entry. Never
-re-summarize a `done` paper.
+Valid `status` values: `pending`, `in-progress`, `done`, `skipped`, `failed`. The script
+writes `started_at`, `finished_at`, `duration_s`, and `last_error` on each flip; you don't
+need to author those fields.
 
 The manifest lives under `_inbox/` and is gitignored — do not commit it.
 
 ## Step 1 — Identify the venue and create the conference files
 
-1. Resolve the canonical program URL:
-   - **USENIX venues** (OSDI, NSDI, ATC, FAST, USENIX Security): `https://www.usenix.org/conference/<venue-lower><yy>/technical-sessions`
-   - **SOSP**: `https://sigops.org/s/conferences/sosp/<yyyy>/` (program page linked from there).
-   - **EuroSys / ASPLOS**: linked from the conference's own site (search `<venue> <year>`).
-   - **MLSys**: `https://mlsys.org/Conferences/<yyyy>`.
-   - Other venues: search for the official program page.
-
-2. Compute the conference slug: `<venue-lower>-<yyyy>` (e.g. `osdi-2025`, `sosp-2024`).
+1. Resolve the canonical program URL (USENIX / SIGOPS / SIGARCH / MLSys / …).
+2. Compute the conference slug: `<venue-lower>-<yyyy>` (e.g. `osdi-2026`, `sosp-2025`).
 3. Create or update **both** of:
    - `src/content/conferences/<slug>.en.md`
    - `src/content/conferences/<slug>.zh-cn.md`
 
-   using [`templates/conference.md`](templates/conference.md). Fill in metadata you already
-   know (venue, year, title, URL). Leave the body minimal for now. Set:
+   using [`templates/conference.md`](templates/conference.md). Set:
    - `overview_status: in-progress`
-   - `written_by: <your agent id>`
+   - `written_by: "Claude Opus 4.7 (Claude Code)"` (or whatever model-qualified string
+     matches the session you're running)
    - `summary_date: <today in YYYY-MM-DD>`
-   - `categories: []` (you'll populate it after Step 4 during categorization)
+   - `categories: []` (populated in Step 4 after per-paper summaries land)
 
-   The two language files share frontmatter verbatim except the body prose. The
-   `title`/`location`/`dates` strings use the conference's official English wording in
-   both files (proper nouns, don't translate).
+   Body stays minimal for now. The two language files share frontmatter verbatim except
+   the body prose. `title`/`location`/`dates` use the conference's official English
+   wording in both files.
 
-## Step 2 — Get the accepted-paper list
+## Step 2 — Build the manifest
 
-Scrape the official program page and build a list of papers. For each paper record:
+From the accepted-papers program page **and** the user-provided proceedings PDFs:
 
-- Title (exact English)
-- Authors (full names, in author order)
-- Affiliations (per author if listed, or aggregate)
-- PDF URL if openly hosted (USENIX open-access PDFs; ACM open-access; author homepages)
-- DOI / abstract URL if PDF is paywalled
-- Abstract text (optional; helps the per-paper agent orient faster)
+1. Scrape / copy the paper list: title, authors, affiliations, DOI/PDF URL, abstract.
+2. For each paper, determine which `volume` of the proceedings contains it and the
+   `pdf_page_start` / `pdf_page_end` range within that volume.
+3. Compute the `slug` (`kebab-case-of-title`, trimmed to ~90 chars if long) and derive
+   `output_path_en` / `output_path_zh` under `src/content/papers/<conference_slug>/`.
+4. Write `_inbox/<slug>/manifest.json` as a JSON array. Set every entry's initial
+   `status: "pending"`.
 
-Seed `_inbox/<slug>/manifest.json` with one entry per paper, `status: "pending"`.
+Sanity checks before launching any sub-agent:
 
-Sanity check: does the count roughly match what the call-for-papers advertised? If the site
-is incomplete (e.g. only day-1 is listed), tell the user and wait for the full list.
+- Paper count matches what the call-for-papers advertised (or the user's stated total).
+- Every `pdf_path` exists on disk.
+- No two entries share a slug.
+- `output_path_en` and `output_path_zh` are unique across the manifest.
 
-## Step 3 — Obtain PDFs
+## Step 3 — Pilot one paper manually
 
-Try, in order:
+Before fanning out, pick ONE representative paper (ideally a well-known one with a clear
+contribution) and run a sub-agent on it manually so you can inspect depth and schema
+compliance:
 
-1. The conference's open-access PDF URL from Step 2.
-2. Author homepage (grep author names + paper title).
-3. arXiv (many systems papers are mirrored there).
-4. Google Scholar's top-1 PDF link.
+```
+./scripts/orchestrate.py \
+  --conference <slug> \
+  --agent codex \
+  --slug <pilot-slug> \
+  --concurrency 1
+```
 
-Save PDFs to `_inbox/<slug>/pdfs/<paper-slug>.pdf` and update `pdf_path` in the manifest.
+Read both the `.en.md` and `.zh-cn.md` outputs. If the depth, structure, or frontmatter
+don't match the template, fix [`paper-summary.md`](paper-summary.md) or the
+[`paper-summary-invocation.md`](paper-summary-invocation.md) template **before**
+parallelizing. The pilot catches misalignment once; skipping it costs you N × the fix.
 
-If the user supplied a combined proceedings PDF, do **not** re-download papers — extract
-page ranges from the proceedings and record `pdf_path`, `pdf_page_start`, `pdf_page_end`,
-and `volume` in each manifest entry instead. A paper-summary sub-agent that sees a page
-range reads only those pages, not the whole proceedings.
+## Step 4 — Fan out via `scripts/orchestrate.py`
 
-If any paper's PDF cannot be retrieved after these attempts, set that manifest entry's
-`status: "skipped"` and `last_error: "needs manual PDF"`, then tell the user:
+Once the pilot looks good, launch the full run:
 
-> "I could not fetch N PDFs automatically. I've marked them `skipped` in the manifest.
-> Please drop the PDFs (or the combined proceedings) into `_inbox/<slug>/pdfs/` and
-> re-run me — I'll resume from the manifest and will only process the skipped entries."
+```
+./scripts/orchestrate.py \
+  --conference <slug> \
+  --agent codex \
+  --concurrency 5
+```
 
-Do **not** invent summaries for missing PDFs.
+What the script does:
 
-## Step 4 — Summarize papers in micro-batches (with a pilot first)
+- Submits every `pending` entry to a `ThreadPoolExecutor(max_workers=N)` up front.
+- Renders [`paper-summary-invocation.md`](paper-summary-invocation.md) with variables
+  from the manifest entry + the agent registry (model name, agent id) and pipes the
+  result to `codex exec` / `claude -p`.
+- Flips the entry `pending` → `in-progress` at launch, `done` / `failed` at exit (under
+  a thread lock). `last_error` gets the tail of stderr on failure.
+- As workers finish, the executor immediately picks up the next queued slug — a
+  publisher-subscriber pipeline, **not** batch-wait-then-start-next-batch.
+- Streams per-paper combined output to `_inbox/<slug>/logs/<paper-slug>.log` for debug.
 
-**Pilot.** Before launching the full batch, pick ONE representative paper from the
-manifest (ideally a well-known one with a clear contribution), run
-[`paper-summary.md`](paper-summary.md) on it yourself, inspect both the `.en.md` and
-`.zh-cn.md` outputs for depth and schema compliance, and only then parallelize. The pilot
-catches template misalignment before it's repeated 40×.
+Useful flags:
 
-**Batching.** Process at most **1–3 papers per sub-task**, or ~60 PDF pages of total
-input, whichever is smaller. For each sub-agent batch, pass:
+| Flag | When to use |
+|---|---|
+| `--dry-run` | Print the selection and exit. Use before every run to confirm you're about to do what you think you are. |
+| `--smoke` | Sends `"say hi in one sentence…"` instead of the real prompt. Proves dispatch/timeout/status-flip logic without touching content. Use when debugging the orchestrator itself. |
+| `--limit N` | Process only the first N pending entries. Good for a second pilot. |
+| `--slug foo --slug bar` | Target specific papers (overrides pending selection). |
+| `--retry-failed` | Re-queue `failed` and stale `in-progress` entries. |
+| `--timeout 1800` | Per-sub-agent wall-clock cap (default 1800s). |
+| `--agent claude-code` | Use Claude Code sub-agents instead of Codex. Comparable runs across agents are a feature — the site shows `written_by`. |
 
-- `pdf_path`, and (if applicable) `pdf_page_start` / `pdf_page_end` / `volume`
-- `output_path_en` and `output_path_zh` from the manifest
-- `conference_slug` (e.g. `osdi-2025`)
-- `agent_id` — propagate yours; sub-agents inherit the identity of their launcher
-- `tag_vocabulary_path`: `prompts/tag-vocabulary.md`
+Between runs:
 
-Between batches: update the manifest (`status: "in-progress"` → `"done"`), save a
-temporary rolling log at `_inbox/<slug>/run.log`, and periodically commit the so-far
-summaries locally (see Step 6). This means a crash at paper 17 loses at most one batch,
-not the whole run.
-
-**Temp-dir hygiene.** Any intermediate artifacts (extracted per-paper PDFs, OCR output,
-scratch JSON) go under `_inbox/<slug>/tmp/`. Do not leave them in the repo root. Do not
-leave them uncleaned after the run.
-
-**Sub-agent output contract.** Each sub-agent must produce TWO schema-valid markdown
-files (one `.en.md`, one `.zh-cn.md`) per paper. If a sub-agent errors out on a paper,
-mark that manifest entry `status: "failed"` with `last_error: <message>` and continue with
-the others — never leave a partial summary in `src/content/papers/`.
-
-After each batch completes, run `npm run build` to verify every new paper file passes Zod
-validation. Fix schema violations before starting the next batch.
+- Check `_inbox/<slug>/manifest.json` for `failed` entries. Inspect the `last_error`
+  tail; inspect `_inbox/<slug>/logs/<paper-slug>.log` for the full run; re-run with
+  `--retry-failed`.
+- Run `npm run build` periodically to catch schema violations early. If a specific
+  sub-agent produced invalid frontmatter, flip its manifest entry back to `pending`
+  manually and re-run.
 
 ## Step 5 — Categorize papers
 
-After all per-paper summaries exist, group them into 4–8 categories that reflect this
-year's program (not a generic topic list — each venue has its own shape).
+After every manifest entry is `done` (or intentionally `skipped`), group papers into 4–8
+categories that reflect this year's program (not a generic topic list — each venue has
+its own shape).
 
 1. Choose 4–8 category ids (kebab-case, short) and a human-readable title for each.
 2. Write a one-paragraph description per category — what makes a paper belong there, what
@@ -168,18 +176,6 @@ year's program (not a generic topic list — each venue has its own shape).
    same across both files.
 4. For each paper, set `category: <id>` in **both** its `.en.md` and `.zh-cn.md`
    frontmatter. Orphan papers are allowed (no `category` field) but try to keep it under 10%.
-
-Example conference frontmatter:
-
-```yaml
-categories:
-  - id: llm-inference
-    title: "LLM inference systems"
-    description: "Serving, caching, and scheduling for large-model inference."
-  - id: scheduling
-    title: "Datacenter scheduling"
-    description: "Cluster-level task placement and resource management."
-```
 
 ## Step 6 — Synthesize the conference-level overview
 
@@ -191,37 +187,43 @@ per-paper summaries, not the PDFs). Its job: write the body of both conference f
 
 Create a branch named `overview/<slug>` and commit in logical chunks:
 
-- One commit: conference metadata (both languages) + categories.
+- One commit: conference metadata (both languages).
 - One commit per ~10 papers (each commit contains both `.en.md` and `.zh-cn.md` for those
   papers). Keeps history bisectable.
+- One commit: categorization (both languages, plus `category:` fields on papers).
 - One final commit: conference-level synthesis body.
 
 Use the conventional prefix `overview(<slug>):` on each commit. Example:
 
 ```
-overview(osdi-2025): add conference metadata, categories
-overview(osdi-2025): summarize papers 1-10
-overview(osdi-2025): synthesize conference overview
+overview(osdi-2026): add conference metadata
+overview(osdi-2026): summarize papers 1-10
+overview(osdi-2026): categorize 48 papers into 6 tracks
+overview(osdi-2026): synthesize conference overview
 ```
 
-**Do not push. Do not open a PR.** Leave the branch local and tell the user it's ready for
-review.
+**Do not push. Do not open a PR.** Leave the branch local and tell the user it's ready
+for review.
 
 ---
 
-## Failure modes to watch for
+## Failure modes to watch for (orchestrator edition)
 
-- **Abstract-copying.** If your summary reads like the abstract, rewrite it. PhD-depth
-  means synthesis, not paraphrase.
-- **Inventing numbers.** Re-check every quantitative claim against the paper. If you can't
-  find it, drop the number.
-- **Unilingual drift.** Dropping the Chinese version when you run out of context is the
-  #1 failure mode. Either produce both, or don't mark the paper `done`.
-- **Translating paper titles or tags.** Don't. Titles and tags stay English in both
-  language files. Only the `oneline` and the section bodies are translated.
-- **Schema drift.** Do not add frontmatter fields that aren't in `src/content/config.ts`.
-- **Tag sprawl.** Stay within the vocabulary in `prompts/tag-vocabulary.md`. Propose new
-  tags in a single batch to the user; don't sprinkle new ones silently.
-- **Context-window melt.** If you feel slow, stop, commit what you have, update the
-  manifest, and tell the user you're pausing. A new session will resume from the manifest
-  cheaper than a dying one will finish.
+- **Context melt during categorization.** By the time all papers land, you've already
+  spent a lot of context. If the session feels slow, commit the per-paper summaries, push
+  the branch, and start a fresh session for Step 5 — the new session reads the finished
+  summaries and the manifest, which is cheaper than finishing in a dying context.
+- **Trusting the sub-agents blindly.** `manifest[*].status == "done"` only means the
+  sub-agent exited 0. Spot-check ~5% of outputs for schema compliance and depth. If a
+  batch looks shallow, blame the template, not the sub-agent — fix
+  [`paper-summary.md`](paper-summary.md) and re-run.
+- **Abstract-copying / inventing numbers.** Same PhD-depth standard applies. Reject and
+  re-run papers whose summaries read like the abstract.
+- **Unilingual drift.** Sub-agents sometimes drop the Chinese file when they run out of
+  context. The schema rejects one-language papers at build time — but catch it earlier
+  by eyeballing file counts (`ls src/content/papers/<slug>/*.en.md | wc -l` should match
+  `*.zh-cn.md`).
+- **Schema drift.** Do not relax `src/content/config.ts` to make a failed sub-agent
+  output validate. Fix the output (or re-run).
+- **Tag sprawl.** Stay within [`tag-vocabulary.md`](tag-vocabulary.md). Propose new tags
+  in a single batch to the user during Step 5; don't sprinkle new ones silently.
