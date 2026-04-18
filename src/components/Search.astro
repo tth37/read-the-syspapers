@@ -9,17 +9,30 @@ const { lang } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const pagefindJs = `${base}/pagefind/pagefind-ui.js`;
 const pagefindCss = `${base}/pagefind/pagefind-ui.css`;
+const basePath = `${base}/pagefind/`;
 const notBuilt = t(lang, "search.not_built");
 ---
 
 <link rel="stylesheet" href={pagefindCss} />
 <div id="search" data-pagefind-ignore></div>
-<script type="module" define:vars={{ pagefindJs, basePath: `${base}/pagefind/`, notBuilt }}>
-  try {
-    const { PagefindUI } = await import(pagefindJs);
-    new PagefindUI({ element: "#search", bundlePath: basePath, showImages: false });
-  } catch (e) {
+<script is:inline define:vars={{ pagefindJs, basePath, notBuilt }}>
+  // pagefind-ui.js is an IIFE that attaches `PagefindUI` to window — not an ES
+  // module. Inject it as a classic script and instantiate once it's loaded.
+  const init = () => {
+    try {
+      // eslint-disable-next-line no-undef
+      new PagefindUI({ element: "#search", bundlePath: basePath, showImages: false });
+    } catch {
+      const el = document.getElementById("search");
+      if (el) el.innerHTML = `<p class="meta">${notBuilt}</p>`;
+    }
+  };
+  const s = document.createElement("script");
+  s.src = pagefindJs;
+  s.onload = init;
+  s.onerror = () => {
     const el = document.getElementById("search");
     if (el) el.innerHTML = `<p class="meta">${notBuilt}</p>`;
-  }
+  };
+  document.head.appendChild(s);
 </script>
