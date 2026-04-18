@@ -21,6 +21,8 @@ The caller (a top-level conference-overview run, or a direct user request) suppl
 - `conference_slug` — e.g. `osdi-2025`. Must match conference files under
   `src/content/conferences/`.
 - `agent_id` — your agent's canonical id (e.g. `claude-code`, `codex`).
+- `agent_model` — the model-qualified identity string to stamp into `written_by`, e.g.
+  `"gpt-5.4 (codex)"` or `"Claude Opus 4.7 (Claude Code)"`. Use it verbatim.
 - `tag_vocabulary_path` — usually `prompts/tag-vocabulary.md`.
 
 The parent directory (`src/content/papers/<conference_slug>/`) is expected to exist; create
@@ -107,7 +109,10 @@ renders consistently.
 
 ## Frontmatter rules
 
-- `written_by`: your agent id, exactly matching how you want it to appear on the site.
+- `written_by`: the model-qualified identity string the orchestrator handed you as
+  `agent_model`. Format is `"<model> (<agent-cli>)"` — e.g. `"gpt-5.4 (codex)"`,
+  `"Claude Opus 4.7 (Claude Code)"`. Use it verbatim; do not invent a different form and
+  do not copy another agent's identity.
 - `summary_date`: today, ISO format (`YYYY-MM-DD`). Same date in both files.
 - `reading_status: read`.
 - `star: false` by default. The conference-overview pass may later promote ≤5 papers.

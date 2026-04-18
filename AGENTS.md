@@ -1,8 +1,18 @@
 # AGENTS.md
 
-Instructions for any coding agent (Claude Code, Codex, Cursor, Gemini, Aider, Windsurf, …)
-working in this repository. This file is deliberately short; long-form task prompts live in
-[`prompts/`](prompts/). Read this file first, then the specific prompt for your task.
+Instructions for coding agents working in this repository. Two roles exist:
+
+- **Orchestrator** — a long-lived session that plans a whole conference pass, prepares
+  the manifest, dispatches per-paper sub-agents via [`scripts/orchestrate.py`](scripts/orchestrate.py),
+  and synthesizes the final overview. In practice this is Claude Code. Start here:
+  [`prompts/conference-overview.md`](prompts/conference-overview.md).
+- **Sub-agent** — a short-lived process that owns exactly one paper. Invoked by the
+  orchestrator script (via `codex exec` or `claude -p`) with a rendered prompt from
+  [`prompts/paper-summary-invocation.md`](prompts/paper-summary-invocation.md). Its
+  instruction set is [`prompts/paper-summary.md`](prompts/paper-summary.md).
+
+This file is deliberately short; long-form task prompts live in [`prompts/`](prompts/).
+Read this file first, then the specific prompt for your role.
 
 ## What this repo is
 
@@ -22,14 +32,20 @@ different agents handle the same papers.
 | `src/pages/[lang]/…` | Every rendered page is locale-prefixed. URLs look like `/en/conferences/osdi-2025` and `/zh-cn/conferences/osdi-2025`. |
 | `prompts/` | Agent task prompts. |
 | `prompts/templates/` | Frontmatter + section skeletons to copy-paste into new content files. |
+| `scripts/orchestrate.py` | Pipeline orchestrator — spawns sub-agent CLIs in parallel, flips manifest status atomically. |
 | `_inbox/` | Gitignored. Drop PDFs, proceedings archives, and run manifests here. |
 
 ## Hard rules (read these before doing anything)
 
-1. **Agent identity.** Set `written_by` in every conference and paper file you author to
-   your own agent id. Canonical ids: `claude-code`, `codex`, `cursor`, `gemini`, `aider`,
-   `windsurf`, `human`. If your agent is not listed, use a kebab-case slug of its name.
-   Never copy another agent's id.
+1. **Agent identity (`written_by`).** Stamp a model-qualified identity string on every
+   conference and paper file you author. Format: `"<model> (<agent-cli>)"`. Canonical
+   examples:
+   - Codex runs: `"gpt-5.4 (codex)"`
+   - Claude Code runs: `"Claude Opus 4.7 (Claude Code)"`, `"Claude Sonnet 4.6 (Claude Code)"`, …
+   - Human: `"human"` (no model qualifier).
+
+   The orchestrator passes you the correct string as `{agent_model}`; use it verbatim and
+   never substitute another agent's identity.
 2. **Bilingual is mandatory.** Every paper summary ships as **both** `<slug>.en.md` and
    `<slug>.zh-cn.md`. Every conference overview ships as **both** `.en.md` and `.zh-cn.md`.
    The two files share title/authors/affiliations/tags/category/URLs; only the `oneline`
@@ -40,28 +56,31 @@ different agents handle the same papers.
    verbatim — paraphrase into your own prose.
 4. **Never commit PDFs or proceedings archives.** All PDFs stay in `_inbox/` (gitignored).
    The repo ships summaries and metadata only.
-5. **Stay in your lane.** When processing a single paper, do not edit other papers'
-   summaries, even to "fix" formatting. Raise concerns in the conference overview body.
-6. **Schema is law.** Do not relax `src/content/config.ts` to make a file validate. Fix the
-   file. If a schema change is genuinely required, stop and flag it to the user.
-7. **Resumable work only.** Long runs must be resumable from a manifest at
-   `_inbox/<slug>/manifest.json` — see [`prompts/conference-overview.md`](prompts/conference-overview.md).
-   Never lose progress to a crash or a context-window wipe.
-8. **Micro-batches, not mega-batches.** When summarizing papers, process at most **1–3
-   papers per sub-task**, or ~60 PDF pages of total input, whichever is smaller. Larger
-   batches reliably blow context and produce shallow output.
+5. **Stay in your lane.** Sub-agents running in parallel edit disjoint file pairs. Do not
+   touch other papers' summaries, even to "fix" formatting. Raise concerns in your return
+   message; the orchestrator will handle cross-paper fix-ups during synthesis.
+6. **Schema is law.** Do not relax `src/content/config.ts` to make a file validate. Fix
+   the file. If a schema change is genuinely required, stop and flag it to the user.
+7. **Resumable work only.** The orchestrator drives work from a manifest at
+   `_inbox/<slug>/manifest.json`. `scripts/orchestrate.py` flips each entry
+   `pending` → `in-progress` → `done`|`failed` atomically and skips `done` entries on
+   re-run. Never lose progress to a crash or a context-window wipe.
+8. **One paper per sub-agent.** Sub-agents own exactly one paper (one `.en.md` + one
+   `.zh-cn.md` pair). Batching multiple papers into a single sub-agent reliably blows
+   context and produces shallow output — the orchestrator script fans out, that's its job.
 9. **No new dependencies** without explicit user approval. This is a content repo, not a
    framework playground.
 10. **Do not push or open PRs** unless the user explicitly asks. Commit locally on a
     well-named branch and stop.
 
-## Entry points by task
+## Entry points by role
 
-- **"Do an overview of \<venue> \<year>"** → [`prompts/conference-overview.md`](prompts/conference-overview.md).
-- **"Summarize this one paper"** → [`prompts/paper-summary.md`](prompts/paper-summary.md).
-- **"Synthesize the conference-level overview"** → [`prompts/conference-synthesis.md`](prompts/conference-synthesis.md)
-  (run *after* per-paper summaries exist).
-- **"What tags should I use?"** → [`prompts/tag-vocabulary.md`](prompts/tag-vocabulary.md).
+- **Orchestrator** — starting a fresh conference pass → [`prompts/conference-overview.md`](prompts/conference-overview.md).
+- **Orchestrator** — dispatching sub-agents → [`scripts/orchestrate.py`](scripts/orchestrate.py) (`--help` for flags).
+- **Orchestrator** — writing the conference-level synthesis after per-paper summaries land → [`prompts/conference-synthesis.md`](prompts/conference-synthesis.md).
+- **Sub-agent** — per-paper instructions (what sections to write, how deep) → [`prompts/paper-summary.md`](prompts/paper-summary.md).
+- **Sub-agent** — the literal rendered prompt the orchestrator sends you → [`prompts/paper-summary-invocation.md`](prompts/paper-summary-invocation.md).
+- **Anyone** — tag vocabulary → [`prompts/tag-vocabulary.md`](prompts/tag-vocabulary.md).
 
 ## Build & preview
 
