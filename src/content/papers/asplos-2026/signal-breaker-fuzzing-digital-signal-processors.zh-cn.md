@@ -21,56 +21,50 @@ summary_date: 2026-04-18
 
 ## TL;DR
 
-SBFUZZ 的核心判断是：如果 DSP fuzzing 继续照搬面向更富设备的 host-centric embedded fuzzer 结构，就很难真正跑起来。它把变异、执行和逐测试样例的局部覆盖判断放到 DSP 上，只把崩溃恢复、全局语料维护和二进制重写这类低频重活留给主机。作者在 15 个 DSP benchmark 上报告 `17.4x` 吞吐提升、`2.6x` 覆盖提升，以及 `2491` 个崩溃输入对应的 `34` 个唯一 bug。
+SBFUZZ 把 DSP fuzzing 当成一个职责划分问题，而不只是把现有 embedded fuzzer 搬过去。它把变异、执行和局部覆盖判断放到 DSP 端，把 crash 恢复、全局语料维护和二进制重写留给主机。作者在 15 个 DSP benchmark 上报告 `17.4x` 吞吐提升、`2.6x` 覆盖提升，以及 `2491` 个崩溃输入对应的 `34` 个唯一 bug。
 
 ## 问题背景
 
-这篇论文首先指出一个长期被忽视的错位：fuzzing 在桌面软件上已经非常成熟，在嵌入式设备上也开始有成体系的方法，但这些方法默认的目标并不是 DSP。已有 embedded fuzzers 往往假设目标有操作系统、有系统工具、能用高速链路和主机频繁交换 testcase 与 coverage bitmap。DSP 则恰好反过来：它常常是 bare metal，片上内存很小，对外只有低带宽的调试或控制接口。若仍沿用“每个输入都送到主机分析一次”的结构，系统绝大多数时间都会耗在协调与传输上。
-
-这件事之所以重要，是因为 DSP 常处在安全和物理世界直接相连的链路里，而且它们的失败方式也不像普通进程退出那样规整。它可能跳进无效地址后一直自旋，可能触发 bus error，也可能在内部状态已经损坏的情况下继续跑。因此，论文把 DSP fuzzing 视为一个同时受三种约束支配的系统问题：内存极小、主机交互极贵、故障模式更像硬件而不是传统软件。
+论文指出，现有 embedded fuzzers 与 DSP 之间有根本错位。像 `uAFL`、`SHiFT` 这样的系统默认目标设备能在每次执行后把 testcase 和 coverage 报告发回主机，再由主机决定下一步。这个模式对更富的 embedded board 还成立，但 DSP 往往是 bare metal Type-3 设备：内存很小、调试接口慢、几乎没有系统软件可借力。把它们强行塞进 host-centric 循环里，协调成本很快就会压过真正的 fuzzing 工作。而且 DSP 常处在通信、医疗等 cyber-physical 链路中，失败时更像死循环、bus error，或状态损坏后的继续执行，而不是干净的进程退出。
 
 ## 核心洞察
 
-论文最关键的洞察是，DSP fuzzer 的职责划分不该按“开发方便”来做，而该按“事件出现频率”来做。凡是几乎每个测试样例都要做的事情，例如从局部 seed pool 里挑种子、做 mutation、执行 SUT、判断局部 coverage 是否增加，都应该留在 DSP 端。凡是低频但重量级的事情，例如保存 crash input、维护全局语料、重写 instrumentation，则应该放到主机端。只要这个分工成立，主机就不再处于普通 fuzzing 迭代的关键路径上。
+最重要的洞察是，fuzzer 的职责应该按“发生频率”划分，而不是按“开发方便”划分。几乎每个输入都会做的工作，例如从本地 seed pool 取种子、做 mutation、执行 SUT、判断局部 coverage 是否增长，都应放在 DSP 端；低频但较重的工作，例如保存 crash、合并全局 coverage、刷新种子池、重写 instrumented binary，则交给主机。这样主机就能退出 steady-state fuzzing 的关键路径。
 
-第二个洞察是，经典 AFL 风格 coverage bitmap 对 DSP 来说是错误抽象。绝大多数输入并不新颖，为每个输入都物化并传输一整份覆盖信息，会同时浪费 RAM 和通信带宽。SBFUZZ 改为把当前 coverage frontier 直接编码进 instrumented binary 本身；一旦某个 basic block 已经被发现，主机之后就把对应 tracing call 改写成 `NOP`。这样，DSP 会随着 campaign 推进而逐步停止为“已知覆盖”付费。也正是这种会自我裁剪的追踪方式，让 DSP-centric 的整体架构真正可行。
+第二个洞察是，AFL 风格的完整 coverage bitmap 对 DSP 来说过于昂贵。大多数 testcase 并不会带来新覆盖，因此每次都生成并传输整份 bitmap 只是在消耗 RAM 和带宽。SBFUZZ 改为记录紧凑的代码 offset，并把已经发现的 tracing 点逐步改写成 `NOP`，使 tracing 成本随着 campaign 推进而下降。
 
 ## 设计
 
-SBFUZZ 被拆成 host engine 和 DSP engine 两部分。主机保存 global seed pool、global coverage list、crashing input，以及一份 host 侧的 instrumented binary。DSP 只保存能塞进片上内存的 local pool，并在设备上运行一个永不退出的 fuzzing loop。周期性刷新 local pool 后，即便整个语料放不进板子，所有已知 seed 仍能随着时间轮流成为变异源。
+SBFUZZ 由 host engine 和 DSP engine 组成。主机保存 global seed pool、global coverage list、crashing input，以及一份与设备保持一致的 instrumented binary；DSP 只保留能放进片上内存的 local pool，并执行一个不会退出的 fuzzing loop。主机会周期性刷新这个 local pool，而不是把整个 corpus 都塞到板上。
 
-在 DSP 端，mutation 被刻意设计得简单且廉价。系统沿用了 AFL 风格的 deterministic 与 random mutator，包括 bit/byte flip、算术增减、zeroing、插入与删除。论文还加入了 mutation digression：随着 fuzzing 继续推进，每次只扰动大约 `10%` 的 seed，因为作者观察到深层覆盖通常来自小幅扰动，而不是反复把输入整体打碎。一旦发现新的 coverage-increasing seed，mutation 的激进程度就会重置，重新扩大搜索半径。
+在主循环里，DSP 负责 AFL 风格的 deterministic 与 random mutation。论文还加入 mutation digression：对同一个 seed 连续变异多轮后，只改动它大约 `10%`，因为作者认为更深层覆盖往往来自小幅扰动。执行模型采用 persistent fuzzing，DSP 会保存寄存器上下文并在每轮后恢复状态，避免残留机器状态制造假阳性 crash。
 
-执行模型更接近 persistent fuzzing，而不是每个输入都重新启动一次程序。DSP 会先保存寄存器上下文，然后在内部循环里反复调用 SUT，并在每次迭代后恢复寄存器状态，避免把残留机器状态误判成 crash。对于 crash 检测，SBFUZZ 使用 watchdog 风格的 timer，再配合硬件中断捕获 hang、bus error 和 data log error，然后跳转到主机可见的 handler，让主机取回输入并重新刷写板子。
-
-最有辨识度的机制是 coverage tracing。作者在 assembly 层做 instrumentation，用很小的 trampoline call 记录 basic block 执行，而且记录的是相对 code segment 的 offset，而不是完整的 program counter 值。tracer 会保存并恢复完整寄存器状态，利用 C55x 的并行移动指令降低开销，并且避开不允许函数调用的 hardware loop 区域。当 DSP 报告一个 coverage-increasing input 后，主机会把局部 trace 合并进全局覆盖，并在自己的二进制副本里把对应 instrumentation 位置改写掉。以后若因 crash 重新刷机，host 与 board 上的 binary 仍保持一致，同时 tracing 开销会随着 campaign 持续下降。
+crash 处理直接利用硬件行为：timer 识别 hang，硬件中断捕获 bus error 和 data log error，主机可见的 breakpoint 则负责把崩溃事件暴露出来，方便主机取回输入并重新刷写或重启板子。最关键的 dynamic coverage-guided tracing 则在 assembly 层插入轻量 trampoline call，记录 basic block offset 而不是完整 PC。主机一旦收到 coverage 增长事件，就把对应 tracing 点改写成 `NOP`，既维持 host-device binary coherence，也持续降低 tracing 开销。
 
 ## 实验评估
 
-实验平台是 `100MHz` 的 TI `TMS320C5515`，每个 benchmark 跑 24 小时，每组做 5 次试验。作者使用了 15 个程序：其中 6 个来自 BDTImark2000 和 Embench DSP 1.0，另外 9 个是更复杂的 DSP 应用，覆盖 speech、image processing、biomedical、machine vision、sonar 和 telecommunications。作为参考基线，论文把 `uAFL`/`SHiFT` 风格的 embedded fuzzer 移植到同一平台，并刻意保持 seed selection 与 mutation 逻辑相近，从而把差异更多地收敛到职责划分和 tracing 策略上。
+实验平台是 `100MHz` 的 TI `TMS320C5515`，每个 benchmark 运行 24 小时，每组做 5 次试验。工作负载共 15 个程序，其中 6 个来自 BDTImark2000 和 Embench DSP 1.0，另外 9 个是更复杂的 DSP 应用。作为对照，作者把 `uAFL`/`SHiFT` 风格的 embedded fuzzer 直接移植到同一块 DSP 上，并尽量保持 seed selection 与 mutation 一致，使比较重点落在职责划分和 tracing 策略上。
 
-吞吐提升非常大，而且几乎是全局性的。SBFUZZ 在全部 15 个 benchmark 上平均达到基线的 `17.4x` 吞吐，在 `servo` 上最高达到 `1900x`，而在频繁崩溃、不得不不断回到主机协调的 `telecom` 上仍有 `1.3x` 提升。覆盖与 bug 发现也沿着同一方向改善：SBFUZZ 平均达到基线的 `2.6x` code coverage，在 15 个 benchmark 上的平均绝对覆盖率约为 `83%`，总共找到 `2491` 个崩溃输入，归并后对应 `34` 个唯一 bug。另一方面，instrumentation overhead 在这个场景里也是可接受的，平均二进制大小只增加 `7.0%`。
-
-整体上，这组实验对论文主张的支持度是高的。参考实现对论文要回答的问题来说足够公平，结果也与作者声称的瓶颈基本对齐。真正的边界在于广度而不是内部有效性：所有实验都集中在一个 TI DSP 家族上，工作负载主要仍是 benchmark，而不是更大规模、更异构的生产固件。
+结果与论文的瓶颈分析高度一致。SBFUZZ 的平均吞吐是基线的 `17.4x`，在 `servo` 上最高达到 `1900x`，而频繁崩溃的 `telecom` 上最小也还有 `1.3x`。覆盖率平均提升 `2.6x`，平均绝对覆盖约为 `83%`。作者还报告了 `2491` 个崩溃输入，人工归并后对应 `34` 个唯一 bug，而 instrumentation 开销平均只让二进制增大 `7.0%`。对核心论点来说，这组实验是有说服力的；它的问题不在机制是否成立，而在可移植性还没有被更广泛地证明。
 
 ## 创新性与影响
 
-和 _Li et al. (ICSE '22)_ 相比，SBFUZZ 直接否定了“硬件辅助 embedded fuzzing 仍可承受逐输入 host-side 分析”这一前提。和 _Mera et al. (USENIX Security '24)_ 相比，它保留了 semi-hosted 思路，但把控制结构翻转过来，让 target 而不是 host 来执行常态路径上的 fuzzing 工作。和 _Nagy and Hicks (S&P '19)_ 相比，它把 commodity 系统里的 coverage-guided tracing 搬到了 bare-metal DSP 环境，并加入了设备端自裁剪 tracing 与 host 侧 binary coherence。
+和 _Li et al. (ICSE '22)_、_Mera et al. (USENIX Security '24)_ 相比，这篇论文真正的新意不在于“把 embedded fuzzing 跑到硬件上”，而在于它拒绝沿用标准的 host-centric 分工，并证明 DSP-centric steady state 才是关键。和 _Nagy and Hicks (S&P '19)_ 相比，它把 coverage-guided tracing 带进了 bare-metal DSP 环境，并把 tracing 做成紧凑、可动态删除的机制。
 
-因此，这篇论文对两类人都很重要。一类是做 embedded security 的研究者，因为它给出了一套此前几乎空白目标类型的可操作 fuzzing 方法。另一类是 systems 与 architecture 研究者，因为它传达了一个更一般的经验：当目标位于硬件与软件边界时，正确的方案往往不是“把 AFL 移植过去”，而是围绕目标的内存层次、指令集和调试接口重新共设计整个运行时。
+它的影响也不只限于 DSP。对 security 社区来说，这是长期被忽略设备类别的一套较完整 fuzzing 路线图。对 systems 研究者来说，它说明：当通信代价高、目标执行语义又特殊时，性能优势往往来自把常态路径压到设备端，把主机留给少数协调事件。
 
 ## 局限性
 
-最明显的局限是覆盖范围。实现和评估都集中在一个 TI C55x 级别的 DSP 板卡、一套专有编译工具链，以及以 benchmark 为主的工作负载上，所以“能否迁移到其他 DSP 家族”更多还是被论证为合理，而不是被充分实证。系统还受限于 local seed pool 只能容纳 15 个输入，因为片上内存确实很紧，语料管理始终被硬件容量强约束。
+最大局限是可移植性。实现绑定在一个 TI C55x 级 DSP、一套闭源编译器、特定的 JTAG/debug 工作流和对应汇编环境上。论文也声称支持 emulated target，但评估全部基于真实硬件。
 
-还有一些复杂度只是被转移了位置，而没有真正消失。crash recovery 仍需要主机重新刷写和外部 power cycling，因此在高 crash 率 benchmark 上，SBFUZZ 的优势会被明显削弱。最后，论文停留在 DSP benchmark 上的 mutation-based fuzzing，没有进一步研究带复杂外围设备的生产固件，也没有整合 concolic 技术来处理后期路径探索停滞的问题。
+另外，工作负载和方法也有边界。DSP 一次只能容纳 15 个本地 seed，crash recovery 仍需要主机重新刷写或 power cycle，评估对象主要是 benchmark 而不是大型生产固件。论文也停留在 mutation-based fuzzing，没有继续探索更强的 seed scheduling 或 concolic 扩展。
 
 ## 相关工作
 
-- _Li et al. (ICSE '22)_ — `uAFL` 依赖硬件 tracing 来 fuzz 微控制器固件，但它仍假设目标能承受每个输入一次的 host-visible trace 收集，这对低带宽 DSP 来说过于昂贵。
-- _Mera et al. (USENIX Security '24)_ — SHiFT 是最接近的 semi-hosted 基线；SBFUZZ 的主要分歧是把 mutation 和逐测试样例的 coverage 判断放回设备端，而不是每轮都和主机协同。
-- _Nagy and Hicks (S&P '19)_ — Full-Speed Fuzzing 在 commodity binary 上提出 coverage-guided tracing，而 SBFUZZ 把这个思路改造成会自裁剪的 DSP instrumentation。
-- _Trippel et al. (USENIX Security '22)_ — Fuzzing Hardware Like Software 启发了 SBFUZZ 对持续执行目标的理解，但 SBFUZZ 只 instrument DSP SUT 本身，而不是动态发现目标区域。
+- _Li et al. (ICSE '22)_ — `uAFL` 证明了硬件 tracing 可以用于微控制器固件 fuzzing，但它仍依赖逐输入的主机侧 trace 处理，这对 DSP 链路太昂贵。
+- _Mera et al. (USENIX Security '24)_ — SHiFT 是最接近的 semi-hosted 基线；SBFUZZ 的关键差别是把 mutation 与局部 coverage 判断放回设备端，而不是每轮都同步主机。
+- _Nagy and Hicks (S&P '19)_ — Full-Speed Fuzzing 提出了 commodity binary 上的 coverage-guided tracing，而 SBFUZZ 把它改造成紧凑且会自裁剪的 DSP instrumentation。
+- _Trippel et al. (USENIX Security '22)_ — Fuzzing Hardware Like Software 提醒人们持续运行目标需要不同处理方式，但 SBFUZZ 假设 DSP SUT 已知，并在汇编层直接对它做 instrumentation。
 
 ## 我的笔记
 

@@ -1,6 +1,6 @@
 ---
 title: "Shift Parallelism: Low-Latency, High-Throughput LLM Inference for Dynamic Workloads"
-oneline: "在不搬动 KV cache 的前提下于 sequence parallelism 与 full tensor parallelism 之间切换，让同一套 LLM 服务同时兼顾低负载低延迟和高负载高吞吐。"
+oneline: "Shift Parallelism 利用 KV-cache 不变性在运行时切换 sequence parallelism 与 tensor parallelism，在低流量降延迟、在突发下保住吞吐。"
 authors:
   - "Mert Hidayetoglu"
   - "Aurick Qiao"
@@ -17,7 +17,7 @@ code_url: "https://github.com/snowflakedb/ArcticInference"
 tags:
   - llm-inference
   - gpu
-  - datacenter
+  - scheduling
 reading_status: read
 star: false
 written_by: codex
@@ -26,56 +26,56 @@ summary_date: 2026-04-18
 
 ## TL;DR
 
-Shift Parallelism 抓住了 LLM serving 里一个很难回避的现实：tensor parallelism 给单请求延迟，data parallelism 给纯吞吐，而现有系统通常只能二选一，或者把两套部署长期并存。论文的做法是把 sequence parallelism 适配到 inference，令它与 tensor parallelism 共享同一种 KV-cache 布局，然后根据 batch size 在线切换。结果是，同一套部署在低负载时能接近 TP 的延迟，在高负载时又能逼近 SP/DP 一侧的吞吐。
+Shift Parallelism 解决的是一个很实际的 serving 矛盾：tensor parallelism 能把单请求延迟压低，但高流量下吞吐差；data parallelism 吞吐高，却救不了单请求时延。论文把 Sequence Parallelism 适配到推理场景，进一步让它与 TP 共享同一套 KV-cache 语义，于是系统可以按照 batch size 在以 SP 为主的 base mode 和 full TP 的 shift mode 之间切换。最终效果是在低流量下保住 TTFT 和 TPOT，在突发流量下又不再像纯 TP 那样明显掉吞吐。
 
 ## 问题背景
 
-这篇论文针对的是不会长期停留在单一工作点上的生产 LLM 推理负载。交互式 chatbot 或 agent loop 往往并发很低，更关心 `TTFT` 和 `TPOT`；而摘要、翻译之类 batch 作业会突发到来，更关心单位时间内总共处理多少 token。现实里的同一个模型服务，可能一天内同时经历这两种模式，甚至一分钟里就来回切换。
+作者认为，真实 LLM 推理流量天然就是动态的。像 coding agent、chatbot 这类交互式请求，通常并发不高，但非常在意 TTFT 和 TPOT；而批处理式任务则会成批涌入，更关心总 tokens/s。单个生产集群往往会同时面对这两类负载，而且它们会随时间来回切换。
 
-现有多 GPU 推理并行方式会把系统逼进一个不舒服的选择。Tensor parallelism（TP）把每层拆开，因此能降低单个请求的延迟，但层层都要做 all-reduce，综合吞吐会下降。Data parallelism（DP）跨请求天然并行，所以高流量下单位 token 成本最低，但它无法加速单个请求，对交互式场景并不友好。最直接的工程补丁是同时维护 TP fleet 和 DP fleet，再按请求类型路由，但这会重复占用容量，也会让生产运维复杂得多。
-
-更值得追问的是：为什么不能让一套部署在 TP 和 DP 之间来回切换？论文的回答是，attention state 对不上。两者的 KV-cache 布局不兼容，中途切换意味着昂贵的数据搬运与同步。这就把问题限定得更具体了：不是“挑一个最优并行方式”，而是“找到一对性能互补、且共享 KV-cache 布局的推理并行方式”，这样系统才能在不重建请求状态的前提下动态切换。
+现有多 GPU 并行方案把系统逼进了二选一。Tensor Parallelism 在层内切分权重和计算，能加速单个请求，但要反复付出 all-reduce 通信代价，因此是典型的“低延迟、低吞吐”路线。Data Parallelism 正相反：模型副本跨请求并行，总吞吐高，但无法加速单个请求。运维上当然可以把 TP 和 DP 分成两个 fleet，但这样会重复部署容量，也增加路由与管理复杂度。更关键的是，论文指出 TP 和 DP 的 attention / KV-cache 布局并不一致，因此几乎不能廉价地在线切换。
 
 ## 核心洞察
 
-论文最关键的洞察是：原本用于训练的 sequence parallelism（SP，也就是 Ulysses）恰好具备做这件事的结构条件。它像 DP 一样，比 TP 更有希望提升吞吐，因为它避开了 TP 那种 all-reduce 很重的 attention 路径；它又不像 DP 那样只能跨请求并行，而是也能在单个请求内部并行，因此对长 prompt 的 `TTFT` 有帮助。最重要的是，只要设计得当，它和 TP 可以共享不变的 KV-cache 布局，于是同一个请求状态可以在两种模式间直接存活下来。
+论文最重要的洞察是，Ulysses 风格的 Sequence Parallelism 恰好具备推理时动态切换所需要的结构性质。它和 DP 一样，在大 batch 下能提供很好的吞吐，因为避免了 TP 在 attention 上的高成本 all-reduce；但它又不像 DP 那样和 TP 的 KV-cache 完全不兼容。只要实现时不仅保证 head 的分布一致，也保证 head 的顺序一致，SP 和 TP 就可以共用同一种 cache 解释方式。
 
-但这并不意味着 SP 在所有时候都最好。低流量 decode 阶段的 batch 很小，SP 会因为负载不均衡而吃亏，甚至需要 padding 才能让所有 GPU 都有活干，这会拖慢 `TPOT`。因此 TP 仍然是小 batch、逐 token 生成延迟最关键时的正确模式。论文真正的命题不是“用 SP 替代 TP”，而是“把 SP 当成高 batch 下的 base mode，把 TP 当成低 batch 下的 shift mode，然后按 batch size 切换”。让这一切成立的关键，就是 KV-cache invariance：只要 cache 和 head ordering 在两种模式间保持一致，系统就能响应流量变化而不用为 cache 重排付出大代价。
+这样一来，流量自适应就可以变成简单的运行时策略。batch 大时，使用 SP 或混合 `(SP, TP)` 配置，以较低 TTFT 和较高吞吐处理高流量；batch 小时，尤其是 decode 主导、SP 容易负载不均的低流量阶段，就切到 full TP 来压低 TPOT。真正关键的命题不是“负载变化时切换并行模式”本身，而是“只在两种 KV-cache 足够不变的并行模式之间切换”，这样切换才不会变成一次昂贵的数据搬运。
 
 ## 设计
 
-这套设计分成两层。第一层是一个更通用的 inference-time SP 实现。作者把训练场景里的 Ulysses 扩展到推理环境，让它支持 Grouped Query Attention（GQA），在 SP 度数超过 KV head 数量时复制 KV cache，并处理低流量下的负载不均衡。对于装不进单卡、或者虽然能装进但留不出足够 KV-cache 空间的模型，作者还支持混合 `(SP, TP)` 的 base 配置。此时 TP 负责把模型放进显存，SP 则用剩下的 GPU 扩大有效 KV-cache 容量并抬高吞吐。
+设计分成两层。第一层是把 SP 真正扩展成可用于推理的通用实现。训练里的 SP 直接搬过来不够，因为推理模型普遍使用 grouped-query attention，很多模型的 KV head 数可能少于 GPU 数，而且推理 batch 规模会不断波动。为此，作者给 SP 加了 GQA 支持；当 KV head 不够时，用 all-to-all 中的复制机制扩展 KV cache；在小 batch 情况下，则通过 padding 把 token 补到 SP 度数的整数倍，让序列切分保持负载均衡。这个 padding 也解释了为什么 SP 不适合低流量 decode：多出来的冗余 token 会拉长 TPOT。
 
-第二层才是 Shift Parallelism 本身。运行时同时维护两种配置：一个 base 配置，使用全 SP 或混合 `(SP, TP)`；一个 shift 配置，使用覆盖整节点的 full TP。每次 forward 时，系统先看当前 batch size 是否超过阈值。若 batch 大，就使用 base 配置，以优化 `TTFT` 和 combined throughput；若 batch 小，就切到 TP，以压低 `TPOT`。
+第二层才是 Shift Parallelism 本身。系统定义两个运行模式：base configuration 是 pure SP，或者在模型装不进单卡时使用 mixed `(SP, TP)`；shift configuration 则总是跨整节点的 full TP。运行时只需比较当前 batch size 和一个阈值：超过阈值就运行 base config，低于阈值就切到 shift config。
 
-想让切换真正便宜，关键在于数据布局控制。论文指出，即便名义上切的是同一组 attention heads，任意 `(SP, TP)` 与 full TP 的组合也不会自动保留 head ordering。为了解决这个问题，shift 配置在加载 QKV shard 时，会遵循 base 配置里的 SP-aware head 顺序。这样，KV cache 在两种模式之间就是一致的。对模型权重，作者最终选择的是显式复制，而不是运行时按需切片：base model 和 shift model 各自独立加载，但共享同一份 KV cache。额外内存成本是 base model 权重的 `1/SP`，因此 base 模式里的 SP 度数越高，这部分复制成本越低。
+这里最难的部分是 KV-cache invariance。对于任意混合 `(SP, TP)` 布局，SP 的 all-to-all 之后，attention head 的全局顺序会发生交织；如果 full TP 仍按朴素顺序解释这些 head，cache 语义就不一致了。论文通过一个通用的 process-to-data mapping 解决这个问题，让 shift config 在加载 QKV shard 时遵循与 base config 相同的逻辑 head 顺序。也正是这一步，把“可以切换”从一句概念论断变成了可落地的系统实现。
 
-实现上，这不是一个全新的推理 runtime，而是通过 plug-in 方式集成进 vLLM。两套模型分别做编译与 CUDA graph capture，再按当前模式回放。这一点很重要，因为论文的目标不是只展示一个算法，而是证明动态并行切换可以现实地嵌进现有 serving 栈。
+论文还讨论了两种权重管理方式。on-the-fly slicing 没有额外内存开销，但在 Hopper FP8 tensor core 上需要额外转置，性能不理想。最终实现选择保留两个模型副本：一个用于 base mode，一个用于 shift mode，它们共享 attention 机制和 KV cache。论文给出的额外权重内存开销是 `1/SP`；例如 `SP = 8` 时，shift model 额外只增加 `12.5%` 权重内存。整个方案通过 ArcticInference plug-in 集成到 vLLM 中，并分别为两种模式做编译和 CUDA graph capture。
 
 ## 实验评估
 
-实验主要围绕单节点 `8xH200` 部署展开，软件基线是 vLLM 加上作者实现，主力模型是 FP8 的 `Llama-70B` 和 `Qwen-32B`，另外还扩展到两个稀疏 MoE 风格模型。最干净的 latency-throughput 对比来自 Figure 12。对于 `Llama-70B`，Shift Parallelism 的 TTFT 是 `102 ms`，而 TP 是 `159 ms`，DP 是 `614 ms`。它的 TPOT 是 `10.1 ms`，几乎贴着 TP 的 `9.34 ms`，但明显优于 DP 的 `22.5 ms`。在 combined throughput 上，它达到 `37.4k tok/s`，远高于 TP 的 `24.7k tok/s`，但仍低于 DP 的 `45.9k tok/s`。这恰好对应论文的主张：它不是在所有指标上全面压过 DP，而是在单一部署里把 TP 和 DP 的取舍明显拉平。
+实验对论文所瞄准的目标场景来说是比较完整的：单节点、多 GPU、流量动态变化的 LLM serving。主测试平台是带 NVSwitch 的 `8xH200` 节点。核心 dense-model 结果基于 FP8 的 Llama-70B 和 Qwen-32B，工作负载包括一个合成的 bursty trace、Azure LLM code trace、Mooncake conversation trace，以及参数化的合成请求。
 
-合成 bursty trace 更能体现实际价值。在那个实验里，Shift Parallelism 的 median TTFT 是 `148 ms`，而吞吐优化的 DP 是 `1,355 ms`，延迟优化的 TP 甚至达到 `3,930 ms`；与此同时，它的 peak throughput 仍有 `69,147 tok/s`，接近 DP 的 `75,535 tok/s`，明显高于 TP 的 `51,162 tok/s`。换句话说，系统愿意为纯 batch 场景下略逊于 DP 的峰值吞吐付出一点代价，换来在 burst 和 interactive 请求混合时避免延迟彻底爆炸。
+合成突发实验把论文的系统主张讲得很清楚。和 vLLM 上的吞吐优化 DP 配置、延迟优化 TP 配置相比，Shift Parallelism 同时拿到了最好的中位数延迟和接近 DP 的吞吐：median TTFT 只有 `148 ms`，而 DP 是 `1,355 ms`，TP 更高达 `3.93 s`；median TPOT 是 `51 ms`，基线在 `83-85 ms`；peak throughput 达到 `69,147 tok/s`，明显更接近 DP 的 `75,535 tok/s`，而不是 TP 的 `51,162 tok/s`。在 Azure code trace 上，论文也显示它在 burst 到来时能持续维持更低的 TTFT、TPOT 和 completion time，而 TP 在这些时刻的排队增长尤其明显。
 
-真实 trace 的结论也一致。Azure code trace 上，Shift Parallelism 在 TTFT、TPOT 和 completion-time 分布上都是最好的。Mooncake conversation trace 上，TP 和 DP 在单节点内都跟不上请求，队列等待时间会不断累积；只有 SP 和 Shift 在启用 FP8 KV cache 后还能把工作负载维持住。我认为这组实验对论文核心论点的支撑是充分的，尤其因为对比是在同一个 vLLM 系统底座上完成的。不过作者也坦承 vLLM 本身有明显框架开销，因此高吞吐场景下与 DP 之间剩余的差距，并不全是并行机制本身造成的。
+参数化 benchmark 用 `4k` 输入、`250` 输出 token，把结论讲得更干净。以 Llama-70B 为例，Shift Parallelism 的 TTFT 是 `102 ms`，而 TP 是 `159 ms`、DP 是 `614 ms`；同时 combined throughput 从 TP 的 `24.7k tok/s` 提升到 `37.4k tok/s`。把输入长度从 `2k` 扩展到 `128k` 后，作者总结的 headline 结果是：相对 DP 最多 `6.97x` 更快的 response，相对 TP 最多 `1.56x` 更快的 response，相对 DP 最多 `2.45x` 更快的 generation，相对 TP 最多 `1.51x` 更高的 peak throughput。arrival-rate sweep 也很有说服力：DP 和 TP 在某个每秒几请求的临界点会发生优劣反转，而 Shift Parallelism 在整个区间里都保持最低 completion time。
+
+我认为这些实验对论文的核心主张支撑得比较充分，但边界也很明确。它并没有在持续高流量下打败 DP 的绝对峰值吞吐，Table 3 里作者自己也明确承认了这一点。它真正赢的地方是：在保留接近 TP 的低延迟特性的同时，显著收回 TP 在吞吐上的损失。这个论点更贴近生产现实，而实验也基本证实了它。
 
 ## 创新性与影响
 
-和把 prefill、decode 拆到不同 worker 的 serving 工作相比，Shift Parallelism 走的是另一条路：保留单一部署，保留本地 KV cache，不去改阶段放置，而是改节点内部的并行方式。和 Ulysses 本身相比，这篇论文的创新也不只是“把 SP 搬到 inference”；真正的新意在于，它证明了 inference-time SP 可以被扩展到足够通用，并且能与 TP 共享 KV 状态，从而组成一对可动态切换的并行模式。
+和 _Agrawal et al. (OSDI '24)_ 相比，这篇论文关注的不是 chunked-prefill 调度，而是更底层的多 GPU 并行模式本身如何选择与切换。和 _Patel et al. (ISCA '24)_ 把 prefill / decode 拆到不同资源上的思路相比，Shift Parallelism 选择留在同一套部署里，通过保持 cache 布局一致来避免阶段间 KV 迁移。它最有新意的点，因此不是单独发明 SP，而是把 SP 重新定位成 TP 的“高吞吐伴侣”，再把两者通过 KV-cache invariance 串成一个可运行的推理系统。
 
-因此，这篇论文最可能影响两类人：一类是做生产级多 GPU LLM serving 的工程团队，另一类是研究动态需求下延迟-成本权衡的系统研究者。它是机制论文，但同时也有很强的部署观点：动态流量不应该迫使运维团队永久维护两套分离的 TP/DP fleet。
+这对构建共享 LLM fleet 的工程团队很有意义，因为真实流量本来就会在交互式和批处理式之间来回摆动。对后续研究来说，它也提供了一个很有价值的角度：调度器不一定只能在固定执行底座之上做选择，底座本身的并行模式也可以成为运行时控制变量。
 
 ## 局限性
 
-论文并不声称 Shift Parallelism 在所有指标上都优于所有基线。纯高流量吞吐仍然是 DP 最强，因为 Shift 依旧要做并行 attention，因此仍然承担通信开销。除此之外，这个设计也带来额外内存与工程成本：shift model 复制了 `1/SP` 的权重，两套配置都要单独编译和 graph capture，还需要人为选定切换阈值。
-
-实验范围也主要集中在单节点和稠密模型。稀疏模型部分的结果很有希望，但作者明确表示 expert parallelism 仍是未来工作。同样，最强的结果都建立在 `8xH200` 与作者的 vLLM plug-in 栈之上。论文并没有真正研究多节点 serving、fleet-level routing，或者阈值应该如何随着流量分布漂移而在线调整。论文也没有给出一个能自动学习阈值的控制器。
+论文也很坦诚地说明，Shift Parallelism 不是全局最优。持续高流量下，DP 仍然掌握最高吞吐的那个角落，因为它彻底避开了 attention 通信。长上下文下的吞吐仍然强烈受 attention 代价限制，而作者把这部分明确留给 sparse-attention 一类技术去解决。实现上，它还继承了 vLLM 在小模型上的不小开销，所以一些剩余性能差距并不能完全归因于并行模式选择。最后，MoE 结果虽然初步乐观，但 expert parallelism 与更广泛的 sparse-model 设计空间都被留作未来工作。
 
 ## 相关工作
 
-- _Patel et al. (ISCA '24)_ — Splitwise 通过把 prefill 和 decode 拆到不同 worker 来分别优化两个阶段，而 Shift Parallelism 保持单节点 serving 栈不变，改的是多 GPU 并行方式而不是阶段放置。
-- _Qin et al. (FAST '25)_ — Mooncake 采用以 KV cache 为中心的 disaggregated 架构，而 Shift Parallelism 刻意避免远程 KV 传输，依赖的是 SP 与 TP 之间共享的本地 KV 布局。
+- _Agrawal et al. (OSDI '24)_ — Sarathi-Serve 通过 chunked prefill 改善 prefill / decode 重叠，而 Shift Parallelism 改变的是底层 GPU 并行模式，并且设计上就是要与 chunked-prefill 系统叠加。
+- _Kwon et al. (SOSP '23)_ — PagedAttention 解决持续 serving 下 KV-cache 内存管理问题；Shift Parallelism 默认建立在这类 serving substrate 之上，关注点是多 GPU 执行策略。
+- _Patel et al. (ISCA '24)_ — Splitwise 把 prefill 和 decode 拆到不同 worker；Shift Parallelism 则保留单节点部署，通过在 SP 和 TP 之间切换来贴合流量，而不在阶段之间搬运 KV 状态。
+- _Qin et al. (FAST '25)_ — Mooncake 把 KV cache 看成一个可解耦的存储问题；Shift Parallelism 关注的则是节点内部如何在 GPU 间并行化推理，以缓解延迟与吞吐之间的冲突。
 
 ## 我的笔记
 
