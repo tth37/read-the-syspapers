@@ -46,17 +46,53 @@ const otherLangs = LANGS.filter((l) => l !== lang);
     <header class="site">
       <div class="inner">
         <a class="brand" href={homeHref(lang)}>{UI[lang]["home.brand"]}</a>
-        <nav>
-          <a href={conferencesHref(lang)}>{t(lang, "nav.conferences")}</a>
-          <a href={tagsHref(lang)}>{t(lang, "nav.tags")}</a>
-          <a href={searchHref(lang)}>{t(lang, "nav.search")}</a>
-        </nav>
-        <div class="lang-switch" aria-label={t(lang, "lang.switch_label")}>
-          {otherLangs.map((l) => (
-            <a href={switchTo(l)} data-lang={l}>{l === "en" ? "EN" : "中文"}</a>
-          ))}
+        <button
+          class="nav-toggle"
+          type="button"
+          aria-label="Menu"
+          aria-expanded="false"
+          aria-controls="site-menu"
+        >
+          <span class="nav-toggle__bar"></span>
+          <span class="nav-toggle__bar"></span>
+          <span class="nav-toggle__bar"></span>
+        </button>
+        <div class="site-menu" id="site-menu">
+          <nav>
+            <a href={conferencesHref(lang)}>{t(lang, "nav.conferences")}</a>
+            <a href={tagsHref(lang)}>{t(lang, "nav.tags")}</a>
+            <a href={searchHref(lang)}>{t(lang, "nav.search")}</a>
+          </nav>
+          <div class="lang-switch" aria-label={t(lang, "lang.switch_label")}>
+            {otherLangs.map((l) => (
+              <a href={switchTo(l)} data-lang={l}>{l === "en" ? "EN" : "中文"}</a>
+            ))}
+          </div>
         </div>
       </div>
+      <script is:inline>
+        (function () {
+          const btn = document.querySelector(".nav-toggle");
+          const menu = document.getElementById("site-menu");
+          if (!btn || !menu) return;
+          function close() {
+            btn.setAttribute("aria-expanded", "false");
+            menu.classList.remove("is-open");
+          }
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const open = btn.getAttribute("aria-expanded") === "true";
+            btn.setAttribute("aria-expanded", open ? "false" : "true");
+            menu.classList.toggle("is-open", !open);
+          });
+          document.addEventListener("click", (e) => {
+            if (!menu.contains(e.target) && e.target !== btn) close();
+          });
+          menu.addEventListener("click", (e) => {
+            if (e.target.tagName === "A") close();
+          });
+        })();
+      </script>
     </header>
     <main class={wide ? "container wide" : "container"} data-pagefind-body>
       <slot />

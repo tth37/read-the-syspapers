@@ -130,11 +130,33 @@ function anchor(cat: { id: string; uncategorized?: boolean }) {
           })}
         </ol>
       </aside>
+      <button class="toc-fab" type="button" aria-label={t(lang, "conferences.toc")} aria-expanded="false" aria-controls="toc-sheet">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M3 5h14M3 10h14M3 15h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="toc-sheet" id="toc-sheet" role="dialog" aria-modal="true" aria-label={t(lang, "conferences.toc")}>
+        <div class="toc-sheet__backdrop" data-toc-close></div>
+        <div class="toc-sheet__panel">
+          <div class="toc-sheet__header">
+            <span>{t(lang, "conferences.toc")}</span>
+            <button class="toc-sheet__close" type="button" aria-label="Close" data-toc-close>×</button>
+          </div>
+          <ol class="toc-sheet__list">
+            {categoryOrder.map((cat) => {
+              const list = cat.uncategorized ? groups.get("__uncategorized__")! : groups.get(cat.id)!;
+              return (
+                <li><a href={`#${anchor(cat)}`}>{cat.title}<span class="count">{list.length}</span></a></li>
+              );
+            })}
+          </ol>
+        </div>
+      </div>
     </div>
   )}
 
   <script>
-    // Highlight the TOC entry matching the category currently in view.
+    // Highlight the TOC entry matching the category currently in view (desktop aside).
     const toc = document.querySelector(".toc-layout__toc");
     if (toc) {
       const links = Array.from(toc.querySelectorAll<HTMLAnchorElement>("a"));
@@ -149,6 +171,28 @@ function anchor(cat: { id: string; uncategorized?: boolean }) {
         }
       }, { rootMargin: "-20% 0px -70% 0px", threshold: 0 });
       for (const section of document.querySelectorAll(".category-block")) observer.observe(section);
+    }
+
+    // Mobile: floating button opens a sheet with the TOC.
+    const fab = document.querySelector<HTMLButtonElement>(".toc-fab");
+    const sheet = document.getElementById("toc-sheet");
+    if (fab && sheet) {
+      const open = () => {
+        sheet.classList.add("is-open");
+        fab.setAttribute("aria-expanded", "true");
+        document.body.style.overflow = "hidden";
+      };
+      const close = () => {
+        sheet.classList.remove("is-open");
+        fab.setAttribute("aria-expanded", "false");
+        document.body.style.overflow = "";
+      };
+      fab.addEventListener("click", open);
+      sheet.querySelectorAll("[data-toc-close]").forEach((el) => el.addEventListener("click", close));
+      sheet.querySelectorAll("a").forEach((a) => a.addEventListener("click", close));
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && sheet.classList.contains("is-open")) close();
+      });
     }
   </script>
 </BaseLayout>
