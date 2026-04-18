@@ -49,11 +49,15 @@ class Agent:
 
 
 def _codex_cmd(prompt: str) -> list[str]:
-    # `--dangerously-bypass-approvals-and-sandbox` is the only way to run fully unattended
-    # because the sub-agent needs to edit files without interactive approval.
+    # Pin the model so the identity we stamp into `written_by` ("gpt-5.4 (codex)")
+    # actually matches the model that produced the output. Without `-m`, codex uses
+    # whatever default is configured in ~/.codex/config.toml, which is not portable
+    # across machines. `--dangerously-bypass-approvals-and-sandbox` is the only way
+    # to run fully unattended — the sub-agent needs to edit files without prompts.
     return [
         "codex",
         "exec",
+        "-m", "gpt-5.4",
         "--dangerously-bypass-approvals-and-sandbox",
         "--skip-git-repo-check",
         "--cd", str(REPO_ROOT),
