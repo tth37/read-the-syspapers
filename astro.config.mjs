@@ -4,7 +4,7 @@ import { defineConfig } from "astro/config";
 // the repo root, leave `base` as "/". For a project site at
 // https://<user>.github.io/read-the-syspapers, set base to "/read-the-syspapers".
 export default defineConfig({
-  site: "https://example.github.io",
+  site: "https://tth37.github.io",
   base: "/read-the-syspapers",
   trailingSlash: "ignore",
   build: {
