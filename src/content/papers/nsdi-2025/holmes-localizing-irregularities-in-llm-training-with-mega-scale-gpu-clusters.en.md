@@ -21,6 +21,7 @@ affiliations:
   - "Tencent"
   - "University of Chicago"
 conference: nsdi-2025
+category: llm-and-ml-training-serving
 tags:
   - llm-training
   - gpu

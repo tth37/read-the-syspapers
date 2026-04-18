@@ -10,6 +10,7 @@ affiliations:
   - "Technische Universität Darmstadt"
   - "Goethe-Universität Frankfurt"
 conference: nsdi-2025
+category: security-and-privacy
 code_url: "https://github.com/jenfrie/tova"
 tags:
   - security

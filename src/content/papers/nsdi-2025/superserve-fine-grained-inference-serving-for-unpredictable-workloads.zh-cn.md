@@ -13,6 +13,7 @@ affiliations:
   - "UC Berkeley"
   - "Adobe"
 conference: nsdi-2025
+category: llm-and-ml-training-serving
 tags:
   - ml-systems
   - scheduling

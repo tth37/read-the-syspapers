@@ -10,6 +10,7 @@ affiliations:
   - "University of Washington"
   - "University of Wisconsin-Madison"
 conference: nsdi-2025
+category: datacenter-networking-and-transport
 tags:
   - rdma
   - networking

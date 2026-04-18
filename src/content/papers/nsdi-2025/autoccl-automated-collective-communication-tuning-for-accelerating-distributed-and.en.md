@@ -14,6 +14,7 @@ affiliations:
   - "Microsoft Research"
   - "Anhui Province Key Laboratory of Biomedical Imaging and Intelligent Processing, Institute of Artificial Intelligence, Hefei Comprehensive National Science Center"
 conference: nsdi-2025
+category: llm-and-ml-training-serving
 code_url: "https://github.com/gbxu/autoccl"
 tags:
   - llm-training

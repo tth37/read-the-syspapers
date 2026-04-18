@@ -26,6 +26,7 @@ affiliations:
   - "TU Berlin"
   - "Huawei, China"
 conference: nsdi-2025
+category: datacenter-networking-and-transport
 code_url: "https://github.com/NASA-NJU/Pyrrha"
 tags:
   - networking

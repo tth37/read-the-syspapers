@@ -8,6 +8,7 @@ affiliations:
   - "Carnegie Mellon University"
   - "University of Wisconsin-Madison"
 conference: nsdi-2025
+category: memory-serverless-and-storage
 code_url: "https://github.com/netlab-wisconsin/Flint"
 tags:
   - storage

@@ -17,6 +17,7 @@ affiliations:
   - "BNRist"
   - "Tsinghua Shenzhen International Graduate School"
 conference: nsdi-2025
+category: llm-and-ml-training-serving
 code_url: "https://github.com/NASP-THU/multiverse"
 tags:
   - llm-training

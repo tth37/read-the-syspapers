@@ -12,6 +12,7 @@ affiliations:
   - "Tsinghua University"
   - "Zhongguancun Laboratory"
 conference: nsdi-2025
+category: programmable-switches-and-smart-packet-processing
 code_url: "https://github.com/wxzisk/ZoomSynth_NSDI2025"
 tags:
   - networking

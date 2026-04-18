@@ -9,6 +9,7 @@ authors:
 affiliations:
   - "University of Wisconsin-Madison"
 conference: nsdi-2025
+category: wireless-cellular-and-real-time-media
 code_url: "https://github.com/netlab-wisconsin/MegaStation"
 tags:
   - gpu

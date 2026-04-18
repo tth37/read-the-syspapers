@@ -14,6 +14,7 @@ affiliations:
   - "University of Edinburgh"
   - "Microsoft and UIUC"
 conference: nsdi-2025
+category: wireless-cellular-and-real-time-media
 tags:
   - energy
   - networking

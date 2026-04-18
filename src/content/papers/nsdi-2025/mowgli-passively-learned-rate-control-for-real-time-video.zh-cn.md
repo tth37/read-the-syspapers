@@ -10,6 +10,7 @@ affiliations:
   - "Princeton University"
   - "University of Illinois Urbana-Champaign"
 conference: nsdi-2025
+category: datacenter-networking-and-transport
 tags:
   - networking
   - observability

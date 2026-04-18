@@ -15,6 +15,7 @@ affiliations:
   - "Technion, Israel Institute of Technology"
   - "VMware Research"
 conference: nsdi-2025
+category: memory-serverless-and-storage
 code_url: "https://github.com/eden-farmem/eden"
 tags:
   - memory

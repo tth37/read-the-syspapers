@@ -18,6 +18,7 @@ affiliations:
   - "Duke University"
   - "UCLA"
 conference: nsdi-2025
+category: datacenter-networking-and-transport
 tags:
   - networking
   - datacenter

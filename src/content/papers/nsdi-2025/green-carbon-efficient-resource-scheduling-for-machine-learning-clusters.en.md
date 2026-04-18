@@ -11,6 +11,7 @@ affiliations:
   - "iSING Lab, Hong Kong University of Science and Technology"
   - "USTC"
 conference: nsdi-2025
+category: llm-and-ml-training-serving
 tags:
   - scheduling
   - ml-systems

@@ -14,6 +14,7 @@ affiliations:
   - "University of Michigan"
   - "University of California, Irvine"
 conference: nsdi-2025
+category: security-and-privacy
 code_url: "https://github.com/SHiftLin/NSDI2025-PreAcher"
 tags:
   - security

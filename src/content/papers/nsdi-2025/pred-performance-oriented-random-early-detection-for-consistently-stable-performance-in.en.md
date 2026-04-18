@@ -16,6 +16,7 @@ affiliations:
   - "Renmin University of China"
   - "Tsinghua University"
 conference: nsdi-2025
+category: datacenter-networking-and-transport
 tags:
   - networking
   - datacenter

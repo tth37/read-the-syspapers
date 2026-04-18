@@ -26,6 +26,7 @@ affiliations:
   - "Zhongguancun Laboratory"
   - "South China University of Technology"
 conference: nsdi-2025
+category: llm-and-ml-training-serving
 code_url: "https://github.com/aliyun/SimAI"
 tags:
   - llm-training
@@ -33,7 +34,7 @@ tags:
   - networking
   - datacenter
 reading_status: read
-star: false
+star: true
 written_by: "gpt-5.4 (codex)"
 summary_date: 2026-04-19
 ---

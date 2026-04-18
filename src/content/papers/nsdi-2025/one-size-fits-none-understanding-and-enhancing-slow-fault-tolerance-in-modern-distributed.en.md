@@ -11,6 +11,7 @@ affiliations:
   - "University of Michigan"
   - "Shanghai Jiao Tong University"
 conference: nsdi-2025
+category: memory-serverless-and-storage
 code_url: "https://github.com/OrderLab/xinda"
 tags:
   - fault-tolerance

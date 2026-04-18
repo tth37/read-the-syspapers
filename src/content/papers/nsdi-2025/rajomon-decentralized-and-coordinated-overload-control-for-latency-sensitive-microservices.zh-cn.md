@@ -15,6 +15,7 @@ affiliations:
   - "DBOS, Inc, USA"
   - "University of California, Los Angeles, USA"
 conference: nsdi-2025
+category: memory-serverless-and-storage
 code_url: "https://github.com/pennsail/rajomon"
 tags:
   - datacenter

@@ -17,6 +17,7 @@ affiliations:
   - "New York University, USA"
   - "Queen Mary University of London, UK"
 conference: nsdi-2025
+category: programmable-switches-and-smart-packet-processing
 code_url: "https://github.com/smartnic/bpf-profile"
 tags:
   - networking

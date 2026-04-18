@@ -11,6 +11,7 @@ affiliations:
   - "UCSD"
   - "Imperial College London"
 conference: nsdi-2025
+category: datacenter-networking-and-transport
 code_url: "https://github.com/epfl-dcsl/SIRD-Caladan-Impl"
 tags:
   - networking

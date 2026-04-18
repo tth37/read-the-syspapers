@@ -17,6 +17,7 @@ affiliations:
   - "Feldera"
   - "University of Michigan"
 conference: nsdi-2025
+category: llm-and-ml-training-serving
 code_url: "https://github.com/OptiReduce"
 project_url: "https://optireduce.github.io"
 tags:

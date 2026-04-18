@@ -28,6 +28,7 @@ affiliations:
   - "Hong Kong University of Science and Technology"
   - "Alibaba Group"
 conference: nsdi-2025
+category: llm-and-ml-training-serving
 tags:
   - ml-systems
   - gpu

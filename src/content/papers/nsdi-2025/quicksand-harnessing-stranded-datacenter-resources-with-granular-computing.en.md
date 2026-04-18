@@ -15,6 +15,7 @@ affiliations:
   - "VMware Research by Broadcom"
   - "USC"
 conference: nsdi-2025
+category: memory-serverless-and-storage
 code_url: "https://github.com/NSDI25-Quicksand/Quicksand"
 tags:
   - datacenter

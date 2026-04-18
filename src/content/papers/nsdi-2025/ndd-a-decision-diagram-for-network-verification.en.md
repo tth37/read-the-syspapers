@@ -10,6 +10,7 @@ affiliations:
   - "Xi'an Jiaotong University"
   - "Google"
 conference: nsdi-2025
+category: network-verification-and-synthesis
 code_url: "https://github.com/XJTU-NetVerify/NDD"
 project_url: "https://xjtu-netverify.github.io/papers/2025-ndd-a-decision-diagram-for-network-verification"
 tags:

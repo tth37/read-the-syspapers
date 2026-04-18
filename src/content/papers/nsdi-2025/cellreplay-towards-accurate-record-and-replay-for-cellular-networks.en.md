@@ -12,6 +12,7 @@ affiliations:
   - "Broadcom"
   - "EPFL"
 conference: nsdi-2025
+category: wireless-cellular-and-real-time-media
 code_url: "https://github.com/williamsentosa95/cellreplay"
 tags:
   - networking

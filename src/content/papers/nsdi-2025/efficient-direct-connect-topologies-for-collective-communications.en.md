@@ -15,6 +15,7 @@ affiliations:
   - "RTX BBN Technologies"
   - "MIT CSAIL"
 conference: nsdi-2025
+category: llm-and-ml-training-serving
 tags:
   - networking
   - gpu

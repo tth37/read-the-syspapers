@@ -18,6 +18,7 @@ affiliations:
   - "Hong Kong University of Science and Technology"
   - "Well-Link Times Inc."
 conference: nsdi-2025
+category: wireless-cellular-and-real-time-media
 tags:
   - networking
   - datacenter

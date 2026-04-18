@@ -15,6 +15,7 @@ affiliations:
   - "Xiamen University"
   - "Fudan University"
 conference: nsdi-2025
+category: consensus-and-blockchain
 code_url: "https://github.com/Decentralized-Computing-Lab/Vegeta"
 tags:
   - consensus

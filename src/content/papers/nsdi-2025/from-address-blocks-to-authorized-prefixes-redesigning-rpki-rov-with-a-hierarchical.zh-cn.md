@@ -14,6 +14,7 @@ affiliations:
   - "University of Chinese Academy of Sciences"
   - "Purple Mountain Laboratories"
 conference: nsdi-2025
+category: security-and-privacy
 code_url: "https://github.com/FIRLab-CNIC/h-2ROV"
 tags:
   - networking

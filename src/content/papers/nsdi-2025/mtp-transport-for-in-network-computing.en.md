@@ -12,6 +12,7 @@ affiliations:
   - "University of Illinois Chicago"
   - "Google and University of Utah"
 conference: nsdi-2025
+category: datacenter-networking-and-transport
 tags:
   - networking
   - smartnic

@@ -7,6 +7,7 @@ authors:
 affiliations:
   - "University of Wisconsin-Madison"
 conference: nsdi-2025
+category: memory-serverless-and-storage
 code_url: "https://github.com/netlab-wisconsin/ntprof"
 tags:
   - storage

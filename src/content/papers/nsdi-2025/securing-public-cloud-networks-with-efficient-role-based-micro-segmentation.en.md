@@ -13,6 +13,7 @@ affiliations:
   - "Rice University"
   - "University of Maryland"
 conference: nsdi-2025
+category: security-and-privacy
 tags:
   - security
   - networking

@@ -16,6 +16,7 @@ affiliations:
   - "Microsoft"
   - "Cornell University"
 conference: nsdi-2025
+category: wireless-cellular-and-real-time-media
 project_url: "https://otter-5gwan.github.io/"
 tags:
   - networking

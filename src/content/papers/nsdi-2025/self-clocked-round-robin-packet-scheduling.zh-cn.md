@@ -13,6 +13,7 @@ affiliations:
   - "University of California Riverside"
   - "Meta"
 conference: nsdi-2025
+category: programmable-switches-and-smart-packet-processing
 code_url: "https://github.com/jean2/scrr"
 tags:
   - networking

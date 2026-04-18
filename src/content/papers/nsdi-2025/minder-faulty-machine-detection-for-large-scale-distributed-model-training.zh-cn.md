@@ -23,6 +23,7 @@ affiliations:
   - "Northeastern University"
   - "Harvard University"
 conference: nsdi-2025
+category: llm-and-ml-training-serving
 tags:
   - llm-training
   - observability

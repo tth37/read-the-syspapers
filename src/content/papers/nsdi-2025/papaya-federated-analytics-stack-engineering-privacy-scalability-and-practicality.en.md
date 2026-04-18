@@ -17,6 +17,7 @@ authors:
 affiliations:
   - "Meta"
 conference: nsdi-2025
+category: security-and-privacy
 tags:
   - security
   - confidential-computing

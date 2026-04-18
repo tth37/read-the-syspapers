@@ -9,6 +9,7 @@ authors:
 affiliations:
   - "UC San Diego"
 conference: nsdi-2025
+category: memory-serverless-and-storage
 code_url: "https://github.com/LinsongGuo/aspen.git"
 tags:
   - scheduling

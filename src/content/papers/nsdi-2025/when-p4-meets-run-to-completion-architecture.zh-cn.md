@@ -19,6 +19,7 @@ affiliations:
   - "State Key Laboratory for Novel Software Technology, Nanjing University, China"
   - "Huawei, China"
 conference: nsdi-2025
+category: programmable-switches-and-smart-packet-processing
 tags:
   - networking
   - smartnic

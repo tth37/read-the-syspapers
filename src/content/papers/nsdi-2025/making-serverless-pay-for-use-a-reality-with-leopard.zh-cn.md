@@ -9,6 +9,7 @@ authors:
 affiliations:
   - "University of Wisconsin–Madison"
 conference: nsdi-2025
+category: memory-serverless-and-storage
 tags:
   - serverless
   - scheduling

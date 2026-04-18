@@ -14,6 +14,7 @@ affiliations:
   - "Politecnico di Milano"
   - "University College London"
 conference: nsdi-2025
+category: datacenter-networking-and-transport
 code_url: "https://github.com/eniac/InvisiFlow"
 tags:
   - networking

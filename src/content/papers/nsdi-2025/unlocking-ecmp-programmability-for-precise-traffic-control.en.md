@@ -19,6 +19,7 @@ affiliations:
   - "Tsinghua University"
   - "Northwestern University"
 conference: nsdi-2025
+category: datacenter-networking-and-transport
 tags:
   - networking
   - datacenter

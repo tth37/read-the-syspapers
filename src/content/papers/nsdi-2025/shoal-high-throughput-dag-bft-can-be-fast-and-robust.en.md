@@ -12,6 +12,7 @@ affiliations:
   - "Cornell University"
   - "UIUC"
 conference: nsdi-2025
+category: consensus-and-blockchain
 tags:
   - consensus
   - fault-tolerance

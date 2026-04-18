@@ -15,6 +15,7 @@ affiliations:
   - "NVIDIA"
   - "Microsoft"
 conference: nsdi-2025
+category: programmable-switches-and-smart-packet-processing
 tags:
   - smartnic
   - compilers

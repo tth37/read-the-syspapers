@@ -14,6 +14,7 @@ affiliations:
   - "State Key Laboratory for Novel Software Technology, Nanjing University"
   - "University of Göttingen"
 conference: nsdi-2025
+category: llm-and-ml-training-serving
 code_url: "https://github.com/mi150/RegenHance"
 tags:
   - ml-systems

@@ -19,6 +19,7 @@ affiliations:
   - "Ant Group"
   - "UIUC"
 conference: nsdi-2025
+category: wireless-cellular-and-real-time-media
 project_url: "https://MCGlatency.github.io"
 tags:
   - virtualization

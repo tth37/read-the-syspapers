@@ -13,6 +13,7 @@ affiliations:
   - "Stony Brook University"
   - "UC Santa Barbara"
 conference: nsdi-2025
+category: consensus-and-blockchain
 code_url: "https://github.com/JeffersonQin/BFTBrain"
 tags:
   - consensus

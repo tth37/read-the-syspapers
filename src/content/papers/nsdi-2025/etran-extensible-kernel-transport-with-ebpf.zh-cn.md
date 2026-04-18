@@ -15,6 +15,7 @@ affiliations:
   - "Harvard University"
   - "UC Berkeley & UC Davis"
 conference: nsdi-2025
+category: datacenter-networking-and-transport
 code_url: "https://github.com/eTran-NSDI25/eTran"
 tags:
   - ebpf

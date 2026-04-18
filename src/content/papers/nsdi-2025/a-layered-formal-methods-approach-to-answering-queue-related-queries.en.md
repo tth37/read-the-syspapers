@@ -8,6 +8,7 @@ authors:
 affiliations:
   - "Princeton University"
 conference: nsdi-2025
+category: network-verification-and-synthesis
 tags:
   - networking
   - formal-methods

@@ -15,6 +15,7 @@ affiliations:
   - "School of Computing, University of Connecticut, Storrs, CT"
   - "Faculty of Computer Science, The College of Management Academic Studies, Rishon LeZion, Israel"
 conference: nsdi-2025
+category: security-and-privacy
 tags:
   - networking
   - security

@@ -11,6 +11,7 @@ authors:
 affiliations:
   - "Institute of Parallel and Distributed Systems, SEIEE, Shanghai Jiao Tong University"
 conference: nsdi-2025
+category: memory-serverless-and-storage
 code_url: "https://github.com/SJTU-IPADS/ODRP"
 tags:
   - memory

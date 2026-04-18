@@ -9,6 +9,7 @@ affiliations:
   - "ETH Zürich"
   - "University College London"
 conference: nsdi-2025
+category: network-verification-and-synthesis
 code_url: "https://github.com/nsg-ethz/velo"
 tags:
   - networking

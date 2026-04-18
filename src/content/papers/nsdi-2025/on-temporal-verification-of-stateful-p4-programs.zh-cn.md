@@ -9,6 +9,7 @@ affiliations:
   - "School of Software, BNRist, Tsinghua University, Beijing 100084, China"
   - "Key Laboratory for Information System Security, MoE, China"
 conference: nsdi-2025
+category: network-verification-and-synthesis
 project_url: "https://thufv.github.io/research/p4tv"
 tags:
   - networking

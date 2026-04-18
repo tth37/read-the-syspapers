@@ -6,6 +6,7 @@ authors:
 affiliations:
   - "Sungshin Women’s University"
 conference: nsdi-2025
+category: programmable-switches-and-smart-packet-processing
 tags:
   - caching
   - smartnic

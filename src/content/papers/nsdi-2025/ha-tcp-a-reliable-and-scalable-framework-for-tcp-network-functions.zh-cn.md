@@ -8,6 +8,7 @@ authors:
 affiliations:
   - "University of Waterloo"
 conference: nsdi-2025
+category: datacenter-networking-and-transport
 code_url: "https://github.com/rcslab/hatcp/"
 tags:
   - networking

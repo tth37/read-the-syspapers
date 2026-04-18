@@ -17,6 +17,7 @@ affiliations:
   - "School of Computer Science, Peking University"
   - "StepFun"
 conference: nsdi-2025
+category: llm-and-ml-training-serving
 code_url: "https://github.com/FlexFusion/FlexFusion"
 tags:
   - llm-training

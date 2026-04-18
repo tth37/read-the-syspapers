@@ -18,6 +18,7 @@ affiliations:
   - "Sun Yat-sen University"
   - "Nanjing University"
 conference: nsdi-2025
+category: datacenter-networking-and-transport
 tags:
   - networking
   - datacenter

@@ -12,6 +12,7 @@ affiliations:
   - "University of Chicago"
   - "ENS Lyon"
 conference: nsdi-2025
+category: programmable-switches-and-smart-packet-processing
 code_url: "https://github.com/stanford-esrg/cato"
 tags:
   - networking

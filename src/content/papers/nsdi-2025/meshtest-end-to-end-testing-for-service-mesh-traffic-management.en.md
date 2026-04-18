@@ -9,6 +9,7 @@ authors:
 affiliations:
   - "School of Computer Science, Peking University"
 conference: nsdi-2025
+category: network-verification-and-synthesis
 code_url: "https://github.com/pkusys/meshtest"
 tags:
   - datacenter

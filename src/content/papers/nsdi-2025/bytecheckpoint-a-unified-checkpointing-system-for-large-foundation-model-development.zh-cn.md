@@ -18,6 +18,7 @@ affiliations:
   - "The University of Hong Kong"
   - "ByteDance"
 conference: nsdi-2025
+category: llm-and-ml-training-serving
 tags:
   - llm-training
   - fault-tolerance

@@ -13,6 +13,7 @@ authors:
 affiliations:
   - "Shanghai Jiao Tong University"
 conference: nsdi-2025
+category: network-verification-and-synthesis
 code_url: "https://github.com/yashen32768/NSDI25-VEP-535"
 tags:
   - ebpf

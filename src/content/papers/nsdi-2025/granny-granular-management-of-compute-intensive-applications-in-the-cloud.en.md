@@ -13,6 +13,7 @@ affiliations:
   - "Imperial College London"
   - "INESC-ID, Instituto Superior Técnico, University of Lisbon"
 conference: nsdi-2025
+category: memory-serverless-and-storage
 code_url: "https://github.com/faasm/faasm/"
 tags:
   - datacenter

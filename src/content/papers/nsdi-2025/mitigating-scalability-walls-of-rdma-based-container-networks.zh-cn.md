@@ -20,6 +20,7 @@ affiliations:
   - "University of Southern California"
   - "UIUC"
 conference: nsdi-2025
+category: datacenter-networking-and-transport
 pdf_url: "https://www.usenix.org/system/files/nsdi25-liu-wei.pdf"
 project_url: "https://scala-cn.github.io"
 tags:

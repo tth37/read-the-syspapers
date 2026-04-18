@@ -16,6 +16,7 @@ affiliations:
   - "North Carolina State University"
   - "Peking University"
 conference: nsdi-2025
+category: consensus-and-blockchain
 tags:
   - consensus
   - fault-tolerance

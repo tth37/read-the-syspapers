@@ -13,6 +13,7 @@ affiliations:
   - "Univ. Grenoble Alpes, CNRS, Inria, Grenoble INP, LIG, 38000 Grenoble, France"
   - "IRIT, Université de Toulouse, CNRS, Toulouse INP, UT3 Toulouse, France"
 conference: nsdi-2025
+category: datacenter-networking-and-transport
 tags:
   - datacenter
   - networking

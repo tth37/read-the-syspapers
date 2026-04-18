@@ -12,6 +12,7 @@ affiliations:
   - "Nokia Bell Labs"
   - "Georgia Institute of Technology"
 conference: nsdi-2025
+category: wireless-cellular-and-real-time-media
 tags:
   - networking
   - hardware

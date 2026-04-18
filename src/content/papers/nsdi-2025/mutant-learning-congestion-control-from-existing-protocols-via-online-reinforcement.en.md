@@ -9,6 +9,7 @@ affiliations:
   - "Saint Louis University"
   - "Politecnico di Torino"
 conference: nsdi-2025
+category: datacenter-networking-and-transport
 code_url: "https://github.com/lorepap/mutant"
 tags:
   - networking

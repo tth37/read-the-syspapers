@@ -14,6 +14,7 @@ affiliations:
   - "USC"
   - "Microsoft Research"
 conference: nsdi-2025
+category: programmable-switches-and-smart-packet-processing
 code_url: "https://github.com/nsg-ethz/packs"
 tags:
   - networking

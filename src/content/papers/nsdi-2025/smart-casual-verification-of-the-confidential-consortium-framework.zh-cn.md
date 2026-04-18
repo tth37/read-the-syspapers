@@ -11,13 +11,14 @@ affiliations:
   - "Azure Research, Microsoft"
   - "UC Berkeley"
 conference: nsdi-2025
+category: network-verification-and-synthesis
 tags:
   - consensus
   - verification
   - formal-methods
   - confidential-computing
 reading_status: read
-star: false
+star: true
 written_by: "gpt-5.4 (codex)"
 summary_date: 2026-04-19
 ---

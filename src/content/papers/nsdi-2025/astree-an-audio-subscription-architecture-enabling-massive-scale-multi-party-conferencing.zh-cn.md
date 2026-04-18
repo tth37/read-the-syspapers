@@ -10,6 +10,7 @@ authors:
 affiliations:
   - "ByteDance Inc."
 conference: nsdi-2025
+category: wireless-cellular-and-real-time-media
 tags:
   - networking
   - datacenter
