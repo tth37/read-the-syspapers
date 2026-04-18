@@ -67,7 +67,7 @@ function anchor(cat: { id: string; uncategorized?: boolean }) {
 }
 ---
 
-<BaseLayout title={conf.data.title} description={`Overview of ${conf.data.title}`} lang={lang} wide={papers.length > 0}>
+<BaseLayout title={conf.data.title} description={`Overview of ${conf.data.title}`} lang={lang}>
   <div class="hero">
     <p class="meta">{conf.data.venue} · {conf.data.year}{conf.data.location && ` · ${conf.data.location}`}{conf.data.dates && ` · ${conf.data.dates}`}</p>
     <h1>{conf.data.title}</h1>

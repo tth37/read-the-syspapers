@@ -309,8 +309,8 @@ blockquote {
 
 .toc-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 220px;
-  gap: 2.5rem;
+  grid-template-columns: minmax(0, 1fr) 180px;
+  gap: 2rem;
   align-items: start;
 }
 
