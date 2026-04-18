@@ -13,13 +13,14 @@ authors:
 affiliations:
   - "Georgia Institute of Technology, Atlanta, GA, USA"
 conference: asplos-2026
+category: ml-systems-beyond-llm
 doi_url: "https://doi.org/10.1145/3760250.3762235"
 tags:
   - ml-systems
   - gpu
   - hardware
 reading_status: read
-star: false
+star: true
 written_by: codex
 summary_date: 2026-04-18
 ---

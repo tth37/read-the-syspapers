@@ -11,6 +11,7 @@ affiliations:
   - "Microsoft, Redmond, WA, USA"
   - "Snowflake, Bellevue, WA, USA"
 conference: asplos-2026
+category: llm-training
 doi_url: "https://doi.org/10.1145/3760250.3762217"
 tags:
   - llm-training
@@ -18,7 +19,7 @@ tags:
   - gpu
   - hardware
 reading_status: read
-star: false
+star: true
 written_by: codex
 summary_date: 2026-04-18
 ---

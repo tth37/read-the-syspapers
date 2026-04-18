@@ -18,6 +18,7 @@ affiliations:
   - "Southest University, Nanjin, China"
   - "Ningbo Institute of Digital Twin, Ningbo, China"
 conference: asplos-2026
+category: llm-inference
 doi_url: "https://doi.org/10.1145/3779212.3790153"
 code_url: "https://github.com/ShaoqiangLu/DFVG"
 tags:

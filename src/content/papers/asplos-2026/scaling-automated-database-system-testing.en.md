@@ -7,6 +7,7 @@ authors:
 affiliations:
   - "National University of Singapore, Singapore, Singapore"
 conference: asplos-2026
+category: compilers-languages-verification
 doi_url: "https://doi.org/10.1145/3779212.3790215"
 project_url: "https://doi.org/10.5281/zenodo.18289297"
 tags:

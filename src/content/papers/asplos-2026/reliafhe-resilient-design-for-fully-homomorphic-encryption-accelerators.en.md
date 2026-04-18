@@ -11,6 +11,7 @@ authors:
 affiliations:
   - "University of Central Florida, Orlando, FL, USA"
 conference: asplos-2026
+category: privacy-and-security
 doi_url: "https://doi.org/10.1145/3779212.3790211"
 tags:
   - security

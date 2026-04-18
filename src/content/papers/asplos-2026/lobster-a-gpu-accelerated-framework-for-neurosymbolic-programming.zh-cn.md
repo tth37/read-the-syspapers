@@ -10,6 +10,7 @@ affiliations:
   - "University of Pennsylvania, Philadelphia, Pennsylvania, USA"
   - "Johns Hopkins University, Baltimore, Maryland, USA"
 conference: asplos-2026
+category: ml-systems-beyond-llm
 doi_url: "https://doi.org/10.1145/3760250.3762232"
 code_url: "https://github.com/P-bibs/Lobster"
 tags:

@@ -18,6 +18,7 @@ affiliations:
   - "University of Minnesota Twin Cities, Minneapolis, MN, USA"
   - "Cornell University, Ithaca, NY, USA"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3779212.3790193"
 code_url: "https://github.com/tancheng/CGRA-Flow/tree/neura-asplos-ae"
 tags:

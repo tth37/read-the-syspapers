@@ -16,6 +16,7 @@ affiliations:
   - "Tianjin University, Tianjin, China"
   - "Stevens Institute of Technology, Hoboken, NJ, USA"
 conference: asplos-2026
+category: llm-inference
 doi_url: "https://doi.org/10.1145/3779212.3790200"
 code_url: "https://github.com/flashserve/PAT"
 tags:

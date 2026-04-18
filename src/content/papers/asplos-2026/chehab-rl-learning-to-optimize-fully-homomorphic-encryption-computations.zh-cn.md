@@ -14,6 +14,7 @@ affiliations:
   - "Ecole Superieure d'Informatique, Algiers, Algeria"
   - "Center for Cyber Security, New York University Abu Dhabi, Abu Dhabi, United Arab Emirates"
 conference: asplos-2026
+category: privacy-and-security
 doi_url: "https://doi.org/10.1145/3779212.3790138"
 code_url: "https://github.com/Modern-Compilers-Lab/CHEHAB"
 tags:

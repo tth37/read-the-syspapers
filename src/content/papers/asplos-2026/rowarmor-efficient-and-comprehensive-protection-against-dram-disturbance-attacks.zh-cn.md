@@ -16,6 +16,7 @@ affiliations:
   - "Samsung Electronics, Suwon, Republic of Korea"
   - "Sungkyunkwan University, Suwon, Republic of Korea"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3779212.3790213"
 tags:
   - memory

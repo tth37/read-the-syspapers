@@ -11,6 +11,7 @@ affiliations:
   - "NVIDIA, Westford, MA, USA"
   - "Cornell University / NVIDIA, Ithaca, NY, USA"
 conference: asplos-2026
+category: compilers-languages-verification
 doi_url: "https://doi.org/10.1145/3760250.3762233"
 code_url: "https://github.com/apl-cornell/PDL"
 tags:

@@ -15,6 +15,7 @@ affiliations:
   - "University of Chinese Academy of Sciences, Beijing, China"
   - "Hangzhou Institute for Advanced Study, University of Chinese Academy of Sciences, Hangzhou, China"
 conference: asplos-2026
+category: llm-inference
 doi_url: "https://doi.org/10.1145/3779212.3790197"
 tags:
   - hardware

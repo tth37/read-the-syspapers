@@ -15,6 +15,7 @@ affiliations:
   - "Research Center for High Efficiency Computing Infrastructure, Zhejiang Lab, Hangzhou, China"
   - "DapuStor, Shenzhen, China"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3779212.3790137"
 tags:
   - storage

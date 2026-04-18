@@ -11,6 +11,7 @@ affiliations:
   - "Cheriton School of Computer Science, University of Waterloo, Waterloo, Canada"
   - "Department of Software Systems & Cybersecurity, Monash University, Melbourne, Australia"
 conference: asplos-2026
+category: compilers-languages-verification
 doi_url: "https://doi.org/10.1145/3779212.3790184"
 code_url: "https://github.com/uw-pluverse/lpo-artifact"
 tags:

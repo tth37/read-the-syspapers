@@ -13,6 +13,7 @@ affiliations:
   - "Adobe Inc, San Jose, California, USA"
   - "University of Virginia, Charlottesville, Virginia, USA"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3760250.3762230"
 code_url: "https://github.com/ds2-lab/NotebookOS"
 tags:

@@ -15,6 +15,7 @@ affiliations:
   - "Zhejiang Institute of Administration, Hangzhou, Zhejiang, China"
   - "Beijing ShenZhou Aerospace Software Technology Ltd., Beijing, Beijing, China"
 conference: asplos-2026
+category: compilers-languages-verification
 doi_url: "https://doi.org/10.1145/3779212.3790183"
 code_url: "https://github.com/Git-zyj/LOOPRAG/tree/ASPLOS26Summer"
 tags:

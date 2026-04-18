@@ -8,6 +8,7 @@ authors:
 affiliations:
   - "Technical University of Darmstadt, Darmstadt, Hesse, Germany"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3779212.3790141"
 code_url: "https://github.com/esa-tu-darmstadt/RTOSUnit_Integration"
 tags:

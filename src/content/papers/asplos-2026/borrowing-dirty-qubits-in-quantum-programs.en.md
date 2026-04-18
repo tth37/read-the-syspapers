@@ -11,9 +11,11 @@ affiliations:
   - "Institute of Software, Chinese Academy of Sciences, Beijing, China"
   - "University of Technology Sydney, Sydney, Australia"
 conference: asplos-2026
+category: quantum
 doi_url: "https://doi.org/10.1145/3779212.3790134"
 code_url: "https://github.com/SugarSBN/QBorrow"
 tags:
+  - quantum
   - hardware
   - pl-systems
   - formal-methods

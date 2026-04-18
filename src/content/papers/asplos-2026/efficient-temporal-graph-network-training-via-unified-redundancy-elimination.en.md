@@ -17,6 +17,7 @@ affiliations:
   - "Beihang University, State Key Laboratory of Complex & Critical Software Environment, Beijing, China"
   - "Beihang University, Beijing, China"
 conference: asplos-2026
+category: ml-systems-beyond-llm
 doi_url: "https://doi.org/10.1145/3779212.3790157"
 code_url: "https://doi.org/10.5281/zenodo.17945819"
 tags:

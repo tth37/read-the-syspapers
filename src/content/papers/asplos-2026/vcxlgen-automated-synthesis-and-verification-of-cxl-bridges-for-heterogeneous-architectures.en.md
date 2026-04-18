@@ -15,6 +15,7 @@ affiliations:
   - "TU Delft, Delft, Netherlands"
   - "NVIDIA, Santa Clara, US"
 conference: asplos-2026
+category: memory-and-disaggregation
 doi_url: "https://doi.org/10.1145/3779212.3790245"
 code_url: "https://github.com/TUM-DSE/vCXLGen"
 project_url: "https://doi.org/10.5281/zenodo.17939343"

@@ -26,6 +26,7 @@ affiliations:
   - "Microsoft Azure, Minneapolis, MN, USA"
   - "Microsoft Azure, Austin, TX, USA"
 conference: asplos-2026
+category: llm-inference
 doi_url: "https://doi.org/10.1145/3779212.3790188"
 code_url: "https://github.com/microsoft/mscclpp"
 tags:

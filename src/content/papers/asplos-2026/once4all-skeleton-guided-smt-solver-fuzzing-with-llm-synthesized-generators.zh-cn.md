@@ -8,6 +8,7 @@ authors:
 affiliations:
   - "State Key Laboratory for Novel Software Technology, Nanjing University, Nanjing, China"
 conference: asplos-2026
+category: compilers-languages-verification
 doi_url: "https://doi.org/10.1145/3779212.3790195"
 tags:
   - fuzzing

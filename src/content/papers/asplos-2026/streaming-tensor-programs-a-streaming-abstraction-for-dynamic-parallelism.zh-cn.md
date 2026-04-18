@@ -15,6 +15,7 @@ affiliations:
   - "SambaNova Systems"
   - "Carnegie Mellon University"
 conference: asplos-2026
+category: compilers-languages-verification
 doi_url: "https://doi.org/10.1145/3779212.3790229"
 tags:
   - hardware
@@ -22,7 +23,7 @@ tags:
   - pl-systems
   - ml-systems
 reading_status: read
-star: false
+star: true
 written_by: codex
 summary_date: 2026-04-18
 ---

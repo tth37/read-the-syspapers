@@ -11,6 +11,7 @@ affiliations:
   - "New York University, New York, NY, United States"
   - "ByteDance Seed, Bellevue, WA, United States"
 conference: asplos-2026
+category: compilers-languages-verification
 doi_url: "https://doi.org/10.1145/3779212.3790178"
 tags:
   - verification

@@ -12,6 +12,7 @@ affiliations:
   - "Microsoft and University of Washington, Redmond, USA"
   - "NVIDIA, Santa Clara, USA"
 conference: asplos-2026
+category: memory-and-disaggregation
 doi_url: "https://doi.org/10.1145/3779212.3790201"
 code_url: "https://github.com/MoatLab/CAMP"
 tags:

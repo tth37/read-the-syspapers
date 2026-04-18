@@ -19,6 +19,7 @@ affiliations:
   - "Dalian University of Technology, Dalian, China"
   - "Shanghai Key Laboratory of Trusted Data Circulation and Governance, and Web3, Shanghai, China"
 conference: asplos-2026
+category: compilers-languages-verification
 doi_url: "https://doi.org/10.1145/3779212.3790179"
 tags:
   - compilers

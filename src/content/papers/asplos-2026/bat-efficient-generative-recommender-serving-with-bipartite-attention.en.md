@@ -19,6 +19,7 @@ affiliations:
   - "Aalto University, Espoo, Finland"
   - "National University of Singapore, Singapore, Singapore"
 conference: asplos-2026
+category: ml-systems-beyond-llm
 doi_url: "https://doi.org/10.1145/3779212.3790131"
 tags:
   - ml-systems

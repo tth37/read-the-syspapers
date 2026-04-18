@@ -15,6 +15,7 @@ affiliations:
   - "Harbin Institute of Technology, Shenzhen, Shenzhen, China"
   - "The Hong Kong University of Science and Technology, Hong Kong, Hong Kong SAR"
 conference: asplos-2026
+category: llm-inference
 doi_url: "https://doi.org/10.1145/3779212.3790250"
 code_url: "https://github.com/HPMLL/ZipServ_ASPLOS26.git"
 tags:

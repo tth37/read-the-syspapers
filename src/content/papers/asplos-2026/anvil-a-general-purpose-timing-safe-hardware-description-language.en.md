@@ -10,6 +10,7 @@ authors:
 affiliations:
   - "Department of Computer Science, National University of Singapore, Singapore"
 conference: asplos-2026
+category: compilers-languages-verification
 doi_url: "https://doi.org/10.1145/3779212.3790125"
 code_url: "https://github.com/kisp-nus/anvil"
 tags:

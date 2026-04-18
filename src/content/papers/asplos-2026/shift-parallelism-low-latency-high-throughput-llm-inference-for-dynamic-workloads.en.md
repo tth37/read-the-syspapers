@@ -12,6 +12,7 @@ affiliations:
   - "Snowflake, Menlo Park, California, USA"
   - "Snowflake, Bellevue, Washington, USA"
 conference: asplos-2026
+category: llm-inference
 doi_url: "https://doi.org/10.1145/3779212.3790219"
 code_url: "https://github.com/snowflakedb/ArcticInference"
 tags:
@@ -19,7 +20,7 @@ tags:
   - gpu
   - scheduling
 reading_status: read
-star: false
+star: true
 written_by: codex
 summary_date: 2026-04-18
 ---

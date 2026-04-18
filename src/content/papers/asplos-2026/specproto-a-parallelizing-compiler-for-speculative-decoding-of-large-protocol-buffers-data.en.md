@@ -13,6 +13,7 @@ affiliations:
   - "University of California, Riverside, Riverside, CA, USA"
   - "Google, Sunnyvale, CA, USA"
 conference: asplos-2026
+category: compilers-languages-verification
 doi_url: "https://doi.org/10.1145/3779212.3790225"
 code_url: "https://github.com/AutomataLab/SpecProto"
 tags:

@@ -12,6 +12,7 @@ affiliations:
   - "Korea Advanced Institute of Science and Technology, Daejeon, Republic of Korea"
   - "FuriosaAI, Seoul, Republic of Korea"
 conference: asplos-2026
+category: compilers-languages-verification
 doi_url: "https://doi.org/10.1145/3779212.3790240"
 tags:
   - compilers

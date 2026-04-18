@@ -20,6 +20,7 @@ affiliations:
   - "Georgia Institute of Technology, Atlanta, GA, USA"
   - "Institute for Artificial Intelligence, Peking University, Beijing, China"
 conference: asplos-2026
+category: ml-systems-beyond-llm
 doi_url: "https://doi.org/10.1145/3779212.3790147"
 tags:
   - hardware

@@ -11,6 +11,7 @@ affiliations:
   - "Dept. of ECE & ISRC, Seoul National University, Seoul, Republic of Korea"
   - "Ulsan National Institute of Science and Technology, Ulsan, Republic of Korea"
 conference: asplos-2026
+category: privacy-and-security
 doi_url: "https://doi.org/10.1145/3779212.3790170"
 tags:
   - security

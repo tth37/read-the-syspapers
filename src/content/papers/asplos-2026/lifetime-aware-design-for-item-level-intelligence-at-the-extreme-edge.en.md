@@ -23,6 +23,7 @@ affiliations:
   - "Qamcom Research & Technology, Karlstad, Sweden"
   - "Pragmatic Semiconductor, Cambridge, England, UK"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3779212.3790182"
 code_url: "https://github.com/harvard-edge/FlexiFlow"
 tags:

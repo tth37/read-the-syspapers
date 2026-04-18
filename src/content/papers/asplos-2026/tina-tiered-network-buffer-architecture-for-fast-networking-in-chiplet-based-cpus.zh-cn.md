@@ -10,6 +10,7 @@ authors:
 affiliations:
   - "University of Illinois, Urbana-Champaign, Urbana, USA"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3760250.3762224"
 code_url: "https://github.com/ece-fast-lab/ASPLOS-2026-TINA"
 tags:

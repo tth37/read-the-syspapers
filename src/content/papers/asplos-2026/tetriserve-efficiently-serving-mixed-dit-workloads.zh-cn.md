@@ -15,6 +15,7 @@ affiliations:
   - "University of Wisconsin-Madison, Madison, Wisconsin, USA"
   - "Nanyang Technological University, Singapore, Singapore"
 conference: asplos-2026
+category: ml-systems-beyond-llm
 doi_url: "https://doi.org/10.1145/3779212.3790233"
 code_url: "https://github.com/DiT-Serving/TetriServe"
 tags:

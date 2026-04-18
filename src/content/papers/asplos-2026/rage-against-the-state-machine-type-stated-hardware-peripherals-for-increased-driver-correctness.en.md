@@ -13,6 +13,7 @@ affiliations:
   - "UC San Diego, La Jolla, California, USA"
   - "Princeton University, Princeton, New Jersey, USA"
 conference: asplos-2026
+category: compilers-languages-verification
 doi_url: "https://doi.org/10.1145/3779212.3790207"
 tags:
   - kernel

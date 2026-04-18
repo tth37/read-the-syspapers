@@ -11,6 +11,7 @@ affiliations:
   - "Georgia Institute of Technology, Atlanta, GA, USA"
   - "NVIDIA Architecture Research Group, Westford, MA, USA"
 conference: asplos-2026
+category: compilers-languages-verification
 doi_url: "https://doi.org/10.1145/3779212.3790176"
 code_url: "https://github.com/nullplay/IndirectEinsum"
 tags:

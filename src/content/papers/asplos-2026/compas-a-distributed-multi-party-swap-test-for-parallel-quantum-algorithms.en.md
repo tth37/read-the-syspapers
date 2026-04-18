@@ -16,9 +16,11 @@ affiliations:
   - "QuEra Computing Inc., Boston, Massachusetts, USA"
   - "North Carolina State University, Raleigh, North Carolina, USA"
 conference: asplos-2026
+category: quantum
 doi_url: "https://doi.org/10.1145/3779212.3790143"
 code_url: "https://github.com/kunliu7/Distributed-Q-Algo"
 tags:
+  - quantum
   - hardware
   - compilers
   - fault-tolerance

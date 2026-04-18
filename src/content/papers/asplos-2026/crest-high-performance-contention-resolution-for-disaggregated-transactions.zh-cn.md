@@ -11,6 +11,7 @@ affiliations:
   - "State Key Lab of Processors, Institute of Computing Technology, Chinese Academy of Sciences, Beijing, China"
   - "Department of Computer Science and Engineering, The Chinese University of Hong Kong, Hong Kong, China"
 conference: asplos-2026
+category: memory-and-disaggregation
 doi_url: "https://doi.org/10.1145/3779212.3790148"
 code_url: "https://github.com/adslabcuhk/crest"
 tags:

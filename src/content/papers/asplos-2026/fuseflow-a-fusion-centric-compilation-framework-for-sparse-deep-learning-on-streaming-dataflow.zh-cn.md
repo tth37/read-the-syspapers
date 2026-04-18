@@ -15,6 +15,7 @@ affiliations:
   - "Barcelona Supercomputing Center, Barcelona, Spain"
   - "Carnegie Mellon University, Pittsburgh, USA"
 conference: asplos-2026
+category: compilers-languages-verification
 doi_url: "https://doi.org/10.1145/3779212.3790165"
 tags:
   - compilers

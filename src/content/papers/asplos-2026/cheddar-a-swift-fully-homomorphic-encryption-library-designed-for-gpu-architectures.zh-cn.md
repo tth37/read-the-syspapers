@@ -8,6 +8,7 @@ authors:
 affiliations:
   - "Seoul National University, Seoul, Republic of Korea"
 conference: asplos-2026
+category: privacy-and-security
 doi_url: "https://doi.org/10.1145/3760250.3762223"
 tags:
   - security

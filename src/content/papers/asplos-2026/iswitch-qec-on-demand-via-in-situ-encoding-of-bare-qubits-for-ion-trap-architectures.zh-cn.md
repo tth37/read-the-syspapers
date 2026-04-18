@@ -22,8 +22,10 @@ affiliations:
   - "University of California, Los Angeles, Los Angeles, California, USA"
   - "Oak Ridge National Laboratory, Oak Ridge, Tennessee, USA"
 conference: asplos-2026
+category: quantum
 doi_url: "https://doi.org/10.1145/3779212.3790177"
 tags:
+  - quantum
   - hardware
   - compilers
   - fault-tolerance

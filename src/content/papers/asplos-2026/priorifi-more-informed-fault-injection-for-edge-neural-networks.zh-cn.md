@@ -10,6 +10,7 @@ affiliations:
   - "University of California San Diego, La Jolla, CA, USA"
   - "Fermi National Accelerator Laboratory, Batavia, IL, USA"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3779212.3790204"
 code_url: "https://github.com/KastnerRG/priorifi"
 tags:

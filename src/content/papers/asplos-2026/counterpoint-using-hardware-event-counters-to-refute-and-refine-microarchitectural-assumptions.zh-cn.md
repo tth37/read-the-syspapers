@@ -10,6 +10,7 @@ affiliations:
   - "Yale University, New Haven, Connecticut, USA"
   - "Stanford University, Stanford, California, USA"
 conference: asplos-2026
+category: compilers-languages-verification
 doi_url: "https://doi.org/10.1145/3779212.3790145"
 tags:
   - hardware

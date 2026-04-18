@@ -15,6 +15,7 @@ affiliations:
   - "Shanghai Qi Zhi Institute, Shanghai, China"
   - "National University of Defense Technology, China"
 conference: asplos-2026
+category: llm-inference
 doi_url: "https://doi.org/10.1145/3779212.3790155"
 tags:
   - llm-inference

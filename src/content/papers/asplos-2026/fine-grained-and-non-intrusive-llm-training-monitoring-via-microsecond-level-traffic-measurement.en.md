@@ -16,6 +16,7 @@ affiliations:
   - "National University of Singapore, Singapore, Singapore"
   - "Infrawaves, Beijing, China"
 conference: asplos-2026
+category: llm-training
 doi_url: "https://doi.org/10.1145/3779212.3790163"
 tags:
   - llm-training

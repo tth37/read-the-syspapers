@@ -9,6 +9,7 @@ affiliations:
   - "Univ. of Illinois Urbana-Champaign, Urbana, IL, USA"
   - "Sandia National Laboratories, Albuquerque, NM, USA"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3779212.3790151"
 tags:
   - hardware

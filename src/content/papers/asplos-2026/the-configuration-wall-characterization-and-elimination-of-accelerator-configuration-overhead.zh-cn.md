@@ -16,6 +16,7 @@ affiliations:
   - "The University of Edinburgh, Edinburgh, United Kingdom"
   - "University of Cambridge, Cambridge, United Kingdom"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3760250.3762225"
 code_url: "https://github.com/kuleuven-micas/snax-mlir"
 tags:

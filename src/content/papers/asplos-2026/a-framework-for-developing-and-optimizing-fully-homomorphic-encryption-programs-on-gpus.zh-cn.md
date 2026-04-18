@@ -15,6 +15,7 @@ affiliations:
   - "Ant Group, Hangzhou, China"
   - "State Key Laboratory of Cryptography and Digital Economy Security, Jinan, China"
 conference: asplos-2026
+category: privacy-and-security
 doi_url: "https://doi.org/10.1145/3779212.3790120"
 code_url: "https://github.com/jizhuoran/EasyFHE"
 tags:

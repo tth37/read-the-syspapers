@@ -13,6 +13,7 @@ affiliations:
   - "Seoul National University, Seoul, South Korea"
   - "POSTECH, Pohang, South Korea"
 conference: asplos-2026
+category: llm-inference
 doi_url: "https://doi.org/10.1145/3779212.3790119"
 code_url: "https://github.com/hongsunjang/HILOS/tree/asplos26"
 tags:

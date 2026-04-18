@@ -10,6 +10,7 @@ affiliations:
   - "Seoul National University, Seoul, Republic of Korea"
   - "Google, Mountain View, CA, USA"
 conference: asplos-2026
+category: ml-systems-beyond-llm
 doi_url: "https://doi.org/10.1145/3779212.3790167"
 code_url: "https://github.com/SNU-ARC/GS-Scale.git"
 tags:

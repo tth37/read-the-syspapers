@@ -11,6 +11,7 @@ affiliations:
   - "Centre for Blockchain Technologies, University College London, London, United Kingdom"
   - "zkSecurity, New York, United States"
 conference: asplos-2026
+category: privacy-and-security
 doi_url: "https://doi.org/10.1145/3779212.3790159"
 tags:
   - compilers

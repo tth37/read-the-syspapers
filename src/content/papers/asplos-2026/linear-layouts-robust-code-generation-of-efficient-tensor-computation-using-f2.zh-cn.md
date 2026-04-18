@@ -17,6 +17,7 @@ affiliations:
   - "George Mason University, Fairfax, United States"
   - "OpenAI, San Francisco, United States"
 conference: asplos-2026
+category: compilers-languages-verification
 doi_url: "https://doi.org/10.1145/3760250.3762221"
 tags:
   - gpu

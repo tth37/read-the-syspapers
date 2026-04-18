@@ -19,6 +19,7 @@ affiliations:
   - "University of Chinese Academy of Sciences, Beijing, China"
   - "Ricore IC Technologies Ltd., Beijing, China"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3779212.3790132"
 tags:
   - hardware

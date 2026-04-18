@@ -9,6 +9,7 @@ affiliations:
   - "Sogang University, Seoul, Republic of Korea"
   - "Santa Clara University, Santa Clara, CA, USA"
 conference: asplos-2026
+category: llm-inference
 doi_url: "https://doi.org/10.1145/3779212.3790194"
 tags:
   - llm-inference

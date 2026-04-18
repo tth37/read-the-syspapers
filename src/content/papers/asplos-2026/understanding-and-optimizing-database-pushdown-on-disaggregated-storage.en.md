@@ -10,6 +10,7 @@ affiliations:
   - "University of Wisconsin-Madison, Madison, WI, USA"
   - "Beihang University, Beijing, China"
 conference: asplos-2026
+category: memory-and-disaggregation
 doi_url: "https://doi.org/10.1145/3779212.3790243"
 code_url: "https://github.com/netlab-wisconsin/TapDB"
 tags:

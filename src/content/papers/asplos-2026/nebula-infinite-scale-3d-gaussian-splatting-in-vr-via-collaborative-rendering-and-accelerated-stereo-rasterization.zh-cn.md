@@ -16,6 +16,7 @@ affiliations:
   - "ICT, Chinese Academy of Sciences, Beijing, China"
   - "Shanghai Jiao Tong University, Shanghai Qi Zhi Institute, Shanghai, China"
 conference: asplos-2026
+category: ml-systems-beyond-llm
 doi_url: "https://doi.org/10.1145/3779212.3790190"
 tags:
   - hardware

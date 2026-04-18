@@ -12,6 +12,7 @@ affiliations:
   - "State Key Laboratory of Cyberspace Security Defense, Institute of Information Engineering, CAS, Beijing, China"
   - "School of Cyber Security, University of Chinese Academy of Sciences, Beijing, China"
 conference: asplos-2026
+category: privacy-and-security
 doi_url: "https://doi.org/10.1145/3779212.3790186"
 tags:
   - security

@@ -17,6 +17,7 @@ affiliations:
   - "National University of Singapore, Singapore"
   - "Researcher, Shanghai, China"
 conference: asplos-2026
+category: llm-inference
 doi_url: "https://doi.org/10.1145/3779212.3790236"
 code_url: "https://github.com/ykcombat/sglang/tree/slo_config"
 project_url: "https://zenodo.org/records/18062118"

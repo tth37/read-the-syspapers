@@ -12,10 +12,12 @@ affiliations:
   - "University of Wisconsin-Madison, Department of Computer Sciences, Madison, WI, USA"
   - "Princeton University, Department of Computer Science, Princeton, NJ, USA"
 conference: asplos-2026
+category: quantum
 doi_url: "https://doi.org/10.1145/3779212.3790205"
 code_url: "https://github.com/jviszlai/PropHunt"
 project_url: "https://doi.org/10.5281/zenodo.17945386"
 tags:
+  - quantum
   - hardware
   - compilers
   - formal-methods

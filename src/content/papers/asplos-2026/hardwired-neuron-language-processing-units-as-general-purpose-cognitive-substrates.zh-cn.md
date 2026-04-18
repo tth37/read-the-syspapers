@@ -36,6 +36,7 @@ affiliations:
   - "Institute of Software, CAS, Beijing, China"
   - "Cambricon Technologies, Beijing, China"
 conference: asplos-2026
+category: llm-inference
 doi_url: "https://doi.org/10.1145/3779212.3790169"
 tags:
   - hardware

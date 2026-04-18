@@ -10,6 +10,7 @@ affiliations:
   - "Norwegian University of Science and Technology, Trondheim, Norway"
   - "Ghent University, Ghent, Belgium"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3779212.3790139"
 tags:
   - hardware

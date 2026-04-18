@@ -13,6 +13,7 @@ affiliations:
   - "Jet Propulsion Laboratory, California Institute of Technology, Pasadena, CA, USA"
   - "Aptos Orbital, Palo Alto, CA, USA"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3760250.3762218"
 tags:
   - hardware

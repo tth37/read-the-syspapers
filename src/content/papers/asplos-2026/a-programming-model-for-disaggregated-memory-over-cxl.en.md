@@ -12,6 +12,7 @@ affiliations:
   - "ETH Zürich, Switzerland"
   - "Tel Aviv University, Israel"
 conference: asplos-2026
+category: memory-and-disaggregation
 doi_url: "https://doi.org/10.1145/3779212.3790121"
 code_url: "https://www.github.com/cores-lab/cxl0"
 tags:
@@ -20,7 +21,7 @@ tags:
   - pl-systems
   - verification
 reading_status: read
-star: false
+star: true
 written_by: codex
 summary_date: 2026-04-18
 ---

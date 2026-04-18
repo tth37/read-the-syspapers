@@ -11,6 +11,7 @@ affiliations:
   - "Carnegie Mellon University, Pittsburgh, PA, USA"
   - "Meta Platforms Inc., Menlo Park, CA, USA"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3779212.3790217"
 code_url: "https://github.com/Thesys-lab/SEVI-ASPLOS26"
 tags:

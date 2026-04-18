@@ -11,6 +11,7 @@ affiliations:
   - "NTT Research, Inc., Sunnyvale, California, USA"
   - "University of Massachusetts Amherst, Amherst, Massachusetts, USA"
 conference: asplos-2026
+category: llm-training
 doi_url: "https://doi.org/10.1145/3779212.3790223"
 tags:
   - llm-training

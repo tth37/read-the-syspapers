@@ -11,6 +11,7 @@ affiliations:
   - "State Key Laboratory of Integrated Chips and Systems, College of Integrated Circuits and Micro-Nano Electronics, Fudan University, Shanghai, China"
   - "State Key Laboratory of Integrated Chips and Systems, School of Microelectronics, Fudan University, Shanghai, China"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3779212.3790222"
 tags:
   - hardware

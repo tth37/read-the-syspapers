@@ -14,6 +14,7 @@ affiliations:
   - "Shanghai Jiao Tong University, Shanghai, China"
   - "The Chinese University of Hong Kong, Hong Kong, China"
 conference: asplos-2026
+category: llm-inference
 doi_url: "https://doi.org/10.1145/3779212.3790187"
 tags:
   - llm-inference

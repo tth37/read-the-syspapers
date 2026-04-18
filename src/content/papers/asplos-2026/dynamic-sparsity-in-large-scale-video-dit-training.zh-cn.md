@@ -16,6 +16,7 @@ affiliations:
   - "Independent, Beijing, China"
   - "StepFun, Shanghai, China"
 conference: asplos-2026
+category: llm-training
 doi_url: "https://doi.org/10.1145/3760250.3762216"
 code_url: "https://github.com/NetX-lab/DSV"
 tags:

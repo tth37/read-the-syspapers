@@ -14,9 +14,11 @@ affiliations:
   - "University of Pennsylvania, Philadelphia, PA, USA"
   - "Lawrence Berkeley National Laboratory, Berkeley, CA, USA"
 conference: asplos-2026
+category: quantum
 doi_url: "https://doi.org/10.1145/3760250.3762227"
 code_url: "https://github.com/JunyuZhou2002/QTurbo.git"
 tags:
+  - quantum
   - compilers
   - hardware
   - pl-systems

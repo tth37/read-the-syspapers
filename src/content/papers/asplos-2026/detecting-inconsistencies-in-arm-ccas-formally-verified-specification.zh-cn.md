@@ -11,6 +11,7 @@ affiliations:
   - "Georgia Institute of Technology, Atlanta, GA, USA"
   - "Samsung Research / Georgia Institute of Technology, Seoul, Republic of Korea / Atlanta, GA, USA"
 conference: asplos-2026
+category: privacy-and-security
 doi_url: "https://doi.org/10.1145/3779212.3790152"
 code_url: "https://github.com/islet-project/scope"
 tags:

@@ -17,6 +17,7 @@ affiliations:
   - "The University of Texas at Austin, Austin, USA"
   - "Queen Mary University of London, London, United Kingdom"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3779212.3790158"
 code_url: "https://github.com/microsoft/machnet"
 tags:

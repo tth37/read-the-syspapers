@@ -12,6 +12,7 @@ affiliations:
   - "KAIST, Daejeon, Republic of Korea"
   - "Meta, Sunnyvale, CA, USA"
 conference: asplos-2026
+category: ml-systems-beyond-llm
 doi_url: "https://doi.org/10.1145/3779212.3790192"
 code_url: "https://github.com/casys-kaist/Neo.git"
 tags:

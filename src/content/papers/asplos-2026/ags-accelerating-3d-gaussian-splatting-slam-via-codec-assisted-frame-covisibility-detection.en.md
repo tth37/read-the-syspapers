@@ -11,6 +11,7 @@ affiliations:
   - "School of Computer Science, Shanghai Jiao Tong University, Shanghai, China"
   - "Department of Micro-Nano Electronics, Shanghai Jiao Tong University, Shanghai, China"
 conference: asplos-2026
+category: ml-systems-beyond-llm
 doi_url: "https://doi.org/10.1145/3760250.3762229"
 tags:
   - hardware

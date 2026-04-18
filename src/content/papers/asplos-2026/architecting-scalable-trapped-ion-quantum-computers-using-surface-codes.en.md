@@ -7,8 +7,10 @@ authors:
 affiliations:
   - "Department of Computer Science and Technology, University of Cambridge, Cambridge, United Kingdom"
 conference: asplos-2026
+category: quantum
 doi_url: "https://doi.org/10.1145/3779212.3790128"
 tags:
+  - quantum
   - hardware
   - compilers
   - fault-tolerance

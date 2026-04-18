@@ -14,6 +14,7 @@ affiliations:
   - "The Hong Kong University of Science and Technology, Hong Kong, Hong Kong"
   - "Duke University, Durham, USA"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3779212.3790202"
 tags:
   - hardware

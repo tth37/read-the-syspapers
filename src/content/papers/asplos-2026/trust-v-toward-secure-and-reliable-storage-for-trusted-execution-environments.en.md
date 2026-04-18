@@ -8,6 +8,7 @@ authors:
 affiliations:
   - "Chungnam National University, Daejeon, Requblic of Korea"
 conference: asplos-2026
+category: privacy-and-security
 doi_url: "https://doi.org/10.1145/3779212.3790242"
 code_url: "https://github.com/Trust-V-opensource/Trust-V"
 tags:

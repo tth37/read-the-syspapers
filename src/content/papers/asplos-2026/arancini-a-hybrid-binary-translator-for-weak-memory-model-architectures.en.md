@@ -19,6 +19,7 @@ affiliations:
   - "RWTH Aachen University, Aachen, Germany"
   - "TU Delft, Delft, Netherlands"
 conference: asplos-2026
+category: compilers-languages-verification
 doi_url: "https://doi.org/10.1145/3779212.3790127"
 tags:
   - compilers

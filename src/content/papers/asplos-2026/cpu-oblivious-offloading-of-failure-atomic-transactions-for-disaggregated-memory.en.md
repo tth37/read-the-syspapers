@@ -16,6 +16,7 @@ affiliations:
   - "North Carolina State University, Raleigh, North Carolina, USA"
   - "University of Central Florida, Orlando, Florida, USA"
 conference: asplos-2026
+category: memory-and-disaggregation
 doi_url: "https://doi.org/10.1145/3779212.3790146"
 tags:
   - disaggregation

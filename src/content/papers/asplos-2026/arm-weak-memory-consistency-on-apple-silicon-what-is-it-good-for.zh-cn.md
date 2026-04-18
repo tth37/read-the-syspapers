@@ -7,6 +7,7 @@ authors:
 affiliations:
   - "Tel Aviv University, Tel Aviv, Israel"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3779212.3790129"
 tags:
   - hardware

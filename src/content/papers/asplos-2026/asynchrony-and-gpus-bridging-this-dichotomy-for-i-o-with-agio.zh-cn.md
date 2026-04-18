@@ -13,6 +13,7 @@ affiliations:
   - "Nvidia, Santa Clara, CA, USA"
   - "Nvidia Research, Santa Clara, CA, USA"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3779212.3790130"
 code_url: "https://doi.org/10.5281/zenodo.18333270"
 tags:

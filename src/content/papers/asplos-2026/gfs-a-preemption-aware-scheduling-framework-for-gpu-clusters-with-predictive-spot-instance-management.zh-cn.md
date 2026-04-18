@@ -26,6 +26,7 @@ affiliations:
   - "Alibaba Group, Hangzhou, China"
   - "Zhejiang University, Hangzhou, China"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3760250.3762231"
 code_url: "https://github.com/Sjtucitlab/Spot"
 tags:

@@ -9,6 +9,7 @@ authors:
 affiliations:
   - "Shanghai Jiao Tong University, Shanghai, China"
 conference: asplos-2026
+category: llm-inference
 doi_url: "https://doi.org/10.1145/3779212.3790212"
 tags:
   - llm-inference

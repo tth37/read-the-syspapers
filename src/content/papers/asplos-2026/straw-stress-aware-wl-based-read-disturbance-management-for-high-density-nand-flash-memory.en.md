@@ -14,6 +14,7 @@ affiliations:
   - "POSTECH, Pohang, Republic of Korea"
   - "Kyungpook National University, Daegu, Republic of Korea"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3779212.3790228"
 tags:
   - storage

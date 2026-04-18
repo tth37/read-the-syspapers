@@ -13,6 +13,7 @@ authors:
 affiliations:
   - "Institute of Computing Technology, Chinese Academy of Sciences, Beijing, China"
 conference: asplos-2026
+category: ml-systems-beyond-llm
 doi_url: "https://doi.org/10.1145/3779212.3790230"
 tags:
   - ml-systems

@@ -16,6 +16,7 @@ affiliations:
   - "Imperial College London, London, United Kingdom"
   - "University of Cambridge, Cambridge, United Kingdom"
 conference: asplos-2026
+category: compilers-languages-verification
 doi_url: "https://doi.org/10.1145/3779212.3790124"
 code_url: "https://github.com/xdslproject/wse-stencil"
 tags:

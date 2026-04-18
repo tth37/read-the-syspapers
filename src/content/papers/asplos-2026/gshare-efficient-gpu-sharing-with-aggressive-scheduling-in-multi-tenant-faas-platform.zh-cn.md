@@ -16,6 +16,7 @@ affiliations:
   - "China Telecom Cloud Technology Co. Ltd., Guangzhou, China"
   - "Temple University, Philadelphia, United States"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3779212.3790168"
 tags:
   - serverless

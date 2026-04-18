@@ -16,6 +16,7 @@ affiliations:
   - "Pacific Northwest National Laboratory, Richland, WA, USA"
   - "University of Washington, Seattle, WA, USA"
 conference: asplos-2026
+category: ml-systems-beyond-llm
 doi_url: "https://doi.org/10.1145/3779212.3790140"
 code_url: "https://github.com/nyu-systems/CLM-GS"
 tags:

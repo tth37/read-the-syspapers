@@ -12,6 +12,7 @@ affiliations:
   - "University of Southern California, Los Angeles, CA, USA"
   - "Carnegie Mellon University, Pittsburgh, PA, USA"
 conference: asplos-2026
+category: privacy-and-security
 doi_url: "https://doi.org/10.1145/3779212.3790247"
 code_url: "https://github.com/sept-usc/Wave"
 tags:

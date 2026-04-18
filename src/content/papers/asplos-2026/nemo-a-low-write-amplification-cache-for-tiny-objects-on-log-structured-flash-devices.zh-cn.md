@@ -18,6 +18,7 @@ affiliations:
   - "Openharmony Community, Beijing, China"
   - "Tsinghua University, Beijing, China"
 conference: asplos-2026
+category: hardware-and-infrastructure
 doi_url: "https://doi.org/10.1145/3779212.3790191"
 code_url: "https://github.com/XMU-DISCLab/Cachelib-Nemo"
 tags:

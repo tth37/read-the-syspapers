@@ -13,6 +13,7 @@ affiliations:
   - "Columbia University, New York, NY, USA"
   - "CertiK, New York, NY, USA"
 conference: asplos-2026
+category: compilers-languages-verification
 doi_url: "https://doi.org/10.1145/3779212.3790171"
 code_url: "https://github.com/VeriGu/spoq3"
 tags:

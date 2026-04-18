@@ -20,10 +20,12 @@ affiliations:
   - "IBM Research, Yorktown Heights, United States"
   - "Lawrence Berkeley National Laboratory, Berkeley, United States"
 conference: asplos-2026
+category: quantum
 doi_url: "https://doi.org/10.1145/3779212.3790123"
 code_url: "https://github.com/acasta-yhliu/asyndrome.git"
 project_url: "https://doi.org/10.5281/zenodo.18291927"
 tags:
+  - quantum
   - compilers
   - hardware
   - pl-systems
