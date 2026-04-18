@@ -1,6 +1,6 @@
 ---
 import "../styles/global.css";
-import { LANGS, homeHref, conferencesHref, tagsHref, searchHref, url } from "../lib/paths";
+import { LANGS, homeHref, conferencesHref, tagsHref, searchHref, blogHref, url } from "../lib/paths";
 import type { Lang } from "../lib/paths";
 import { t, UI } from "../lib/i18n";
 
@@ -60,6 +60,7 @@ const otherLangs = LANGS.filter((l) => l !== lang);
         <div class="site-menu" id="site-menu">
           <nav>
             <a href={conferencesHref(lang)}>{t(lang, "nav.conferences")}</a>
+            <a href={blogHref(lang)}>{t(lang, "nav.blog")}</a>
             <a href={tagsHref(lang)}>{t(lang, "nav.tags")}</a>
             <a href={searchHref(lang)}>{t(lang, "nav.search")}</a>
           </nav>

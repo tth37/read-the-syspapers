@@ -75,3 +75,11 @@ export function tagHref(lang: Lang, tag: string): string {
 export function searchHref(lang: Lang): string {
   return url(lang, "/search");
 }
+
+export function blogHref(lang: Lang): string {
+  return url(lang, "/blog");
+}
+
+export function blogPostHref(lang: Lang, slug: string): string {
+  return url(lang, `/blog/${slug}`);
+}

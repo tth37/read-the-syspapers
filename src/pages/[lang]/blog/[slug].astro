@@ -1,0 +1,61 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import TagChip from "../../../components/TagChip.astro";
+import WrittenByBadge from "../../../components/WrittenByBadge.astro";
+import { idLang, baseSlug, blogHref } from "../../../lib/paths";
+import type { Lang } from "../../../lib/paths";
+import { t } from "../../../lib/i18n";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog");
+  return posts.map((p) => ({
+    params: { lang: idLang(p.id), slug: baseSlug(p.id) },
+    props: { post: p },
+  }));
+}
+
+const { post } = Astro.props;
+const lang = Astro.params.lang as Lang;
+const { Content } = await render(post);
+
+const wpm = lang === "zh-cn" ? 380 : 220;
+const readingTime = post.data.reading_time_minutes ?? Math.max(1, Math.round(post.data.total_words / wpm));
+const publishDateStr = (post.data.publish_date instanceof Date
+  ? post.data.publish_date
+  : new Date(post.data.publish_date)
+).toISOString().slice(0, 10);
+
+const wordsLabel = post.data.total_words.toLocaleString(lang === "zh-cn" ? "zh-CN" : "en");
+---
+
+<BaseLayout title={post.data.title} description={post.data.oneline} lang={lang}>
+  <p class="meta">
+    <a href={blogHref(lang)}>{t(lang, "blog.back_to_index")}</a>
+  </p>
+
+  <div class="blog-post-header">
+    <p class="blog-post-header__topic">
+      <span class="label">{t(lang, "blog.topic_prefix")}</span>
+      <span class="value">#{post.data.topic}</span>
+      {post.data.draft && <span class="draft-pill">{t(lang, "blog.draft")}</span>}
+    </p>
+    <h1>{post.data.title}</h1>
+    <p class="oneline" style="font-size:1.05rem;margin-top:-.15rem">{post.data.oneline}</p>
+    <p class="blog-post-header__meta">
+      <span>{t(lang, "blog.published", { date: publishDateStr })}</span>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>{t(lang, "blog.reading_time", { n: readingTime })}</span>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>{t(lang, "blog.words", { n: wordsLabel })}</span>
+    </p>
+    <div style="margin:.35rem 0 0">
+      {post.data.tags.map((tg) => <TagChip lang={lang} tag={tg} />)}
+      <WrittenByBadge lang={lang} writtenBy={post.data.written_by} date={post.data.publish_date} />
+    </div>
+  </div>
+
+  <article class="prose">
+    <Content />
+  </article>
+</BaseLayout>

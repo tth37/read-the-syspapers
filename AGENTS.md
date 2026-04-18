@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Instructions for coding agents working in this repository. Two roles exist:
+Instructions for coding agents working in this repository. Three roles exist:
 
 - **Orchestrator** — a long-lived session that plans a whole conference pass, prepares
   the manifest, dispatches per-paper sub-agents via [`scripts/orchestrate.py`](scripts/orchestrate.py),
@@ -12,6 +12,11 @@ Instructions for coding agents working in this repository. Two roles exist:
   orchestrator script (via `codex exec` or `claude -p`) with a rendered prompt from
   [`prompts/paper-summary-invocation.md`](prompts/paper-summary-invocation.md). Its
   instruction set is [`prompts/paper-summary.md`](prompts/paper-summary.md).
+- **Blog writer** — a single session that takes a user-supplied perspective on a topic,
+  does comprehensive research across indexed papers and the open web, and ships one
+  bilingual blog post. Instruction set: [`prompts/blog-writing.md`](prompts/blog-writing.md).
+  Unlike paper summaries, blog posts are perspective-driven (the user always supplies
+  a thesis) and are not orchestrated — one prompt, one agent, one post.
 
 This file is deliberately short; long-form task prompts live in [`prompts/`](prompts/).
 Read this file first, then the specific prompt for your role.
@@ -30,6 +35,7 @@ different agents handle the same papers.
 |---|---|
 | `src/content/conferences/` | Two files per conference: `<venue>-<year>.en.md` **and** `<venue>-<year>.zh-cn.md`. Frontmatter is strictly validated. |
 | `src/content/papers/<venue>-<year>/` | For each paper: `<slug>.en.md` **and** `<slug>.zh-cn.md`. Both must exist. |
+| `src/content/blog/` | Two files per blog post: `<slug>.en.md` **and** `<slug>.zh-cn.md`. Perspective-driven long-form essays; see [`prompts/blog-writing.md`](prompts/blog-writing.md). |
 | `src/content/config.ts` | Zod schemas and the canonical `LANGS` list. Read before editing any frontmatter. |
 | `src/pages/[lang]/…` | Every rendered page is locale-prefixed. URLs look like `/en/conferences/osdi-2025` and `/zh-cn/conferences/osdi-2025`. |
 | `prompts/` | Agent task prompts. |
@@ -50,10 +56,11 @@ different agents handle the same papers.
 
    The orchestrator passes you the correct string as `{agent_model}`; use it verbatim and
    never substitute another agent's identity.
-2. **Bilingual is mandatory.** Every paper summary ships as **both** `<slug>.en.md` and
-   `<slug>.zh-cn.md`. Every conference overview ships as **both** `.en.md` and `.zh-cn.md`.
-   The two files share title/authors/affiliations/tags/category/URLs; only the `oneline`
-   and the body prose differ. A paper that exists in only one language fails review.
+2. **Bilingual is mandatory.** Every paper summary, conference overview, and blog post
+   ships as **both** `<slug>.en.md` and `<slug>.zh-cn.md`. Shared fields stay identical
+   across the two files; `oneline` and body prose are per-language (and for blog posts,
+   `total_words` too, since Chinese counts characters and English counts words). A file
+   that exists in only one language fails review.
 3. **Never fabricate.** No invented citations, no invented numbers, no invented author
    names or affiliations. If the paper does not specify something, write "the paper does
    not specify" (or the Chinese equivalent) rather than guessing. Do not copy the abstract
@@ -110,6 +117,7 @@ re-ask the user about them and don't improvise:
 - **Orchestrator** — writing the conference-level synthesis after per-paper summaries land → [`prompts/conference-synthesis.md`](prompts/conference-synthesis.md).
 - **Sub-agent** — per-paper instructions (what sections to write, how deep) → [`prompts/paper-summary.md`](prompts/paper-summary.md).
 - **Sub-agent** — the literal rendered prompt the orchestrator sends you → [`prompts/paper-summary-invocation.md`](prompts/paper-summary-invocation.md).
+- **Blog writer** — perspective-driven tech-insight essay (research methodology + bilingual output) → [`prompts/blog-writing.md`](prompts/blog-writing.md).
 - **Anyone** — tag vocabulary → [`prompts/tag-vocabulary.md`](prompts/tag-vocabulary.md).
 
 ## Build & preview

@@ -1,0 +1,59 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import BlogCard from "../../../components/BlogCard.astro";
+import { LANGS, idLang, baseSlug } from "../../../lib/paths";
+import type { Lang } from "../../../lib/paths";
+import { t } from "../../../lib/i18n";
+
+export async function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+
+const posts = (await getCollection("blog")).filter((p) => idLang(p.id) === lang);
+
+// Derive reading time if the post didn't set one explicitly.
+function readingMinutes(words: number, explicit?: number, lang?: Lang): number {
+  if (explicit) return explicit;
+  // 220 wpm for English; 380 chars/min for Chinese (rough but decent approximations).
+  const wpm = lang === "zh-cn" ? 380 : 220;
+  return Math.max(1, Math.round(words / wpm));
+}
+
+posts.sort((a, b) => {
+  const ad = a.data.publish_date instanceof Date ? a.data.publish_date : new Date(a.data.publish_date);
+  const bd = b.data.publish_date instanceof Date ? b.data.publish_date : new Date(b.data.publish_date);
+  return bd.getTime() - ad.getTime();
+});
+---
+
+<BaseLayout title={t(lang, "blog.title")} description={t(lang, "blog.subtitle")} lang={lang}>
+  <div class="hero">
+    <h1>{t(lang, "blog.title")}</h1>
+    <p>{t(lang, "blog.subtitle")}</p>
+  </div>
+
+  {posts.length === 0 ? (
+    <p class="meta">{t(lang, "blog.none_yet")}</p>
+  ) : (
+    <div class="blog-grid">
+      {posts.map((p) => (
+        <BlogCard
+          lang={lang}
+          slug={baseSlug(p.id)}
+          title={p.data.title}
+          oneline={p.data.oneline}
+          topic={p.data.topic}
+          tags={p.data.tags}
+          totalWords={p.data.total_words}
+          readingTimeMinutes={readingMinutes(p.data.total_words, p.data.reading_time_minutes, lang)}
+          writtenBy={p.data.written_by}
+          publishDate={p.data.publish_date}
+          draft={p.data.draft}
+        />
+      ))}
+    </div>
+  )}
+</BaseLayout>

@@ -1,0 +1,56 @@
+---
+import { blogPostHref } from "../lib/paths";
+import type { Lang } from "../lib/paths";
+import TagChip from "./TagChip.astro";
+import WrittenByBadge from "./WrittenByBadge.astro";
+import { t } from "../lib/i18n";
+
+interface Props {
+  lang: Lang;
+  slug: string;
+  title: string;
+  oneline: string;
+  topic: string;
+  tags: string[];
+  totalWords: number;
+  readingTimeMinutes: number;
+  writtenBy: string;
+  publishDate: Date;
+  draft: boolean;
+}
+
+const {
+  lang,
+  slug,
+  title,
+  oneline,
+  topic,
+  tags,
+  totalWords,
+  readingTimeMinutes,
+  writtenBy,
+  publishDate,
+  draft,
+} = Astro.props;
+---
+
+<article class="blog-card">
+  <div class="blog-card__topic">
+    <span class="label">{t(lang, "blog.topic_prefix")}</span>
+    <span class="value">#{topic}</span>
+    {draft && <span class="draft-pill">{t(lang, "blog.draft")}</span>}
+  </div>
+  <h3 class="blog-card__title">
+    <a class="blog-card__link" href={blogPostHref(lang, slug)}>{title}</a>
+  </h3>
+  <p class="blog-card__oneline">{oneline}</p>
+  <div class="blog-card__meta">
+    <span>{t(lang, "blog.reading_time", { n: readingTimeMinutes })}</span>
+    <span class="dot" aria-hidden="true">·</span>
+    <span>{t(lang, "blog.words", { n: totalWords.toLocaleString(lang === "zh-cn" ? "zh-CN" : "en") })}</span>
+  </div>
+  <div class="blog-card__tags">
+    {tags.map((tg) => <TagChip lang={lang} tag={tg} />)}
+    <WrittenByBadge lang={lang} writtenBy={writtenBy} date={publishDate} />
+  </div>
+</article>

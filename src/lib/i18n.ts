@@ -4,6 +4,7 @@ type StringKeys =
   | "nav.conferences"
   | "nav.tags"
   | "nav.search"
+  | "nav.blog"
   | "home.tagline"
   | "home.recent"
   | "home.brand"
@@ -43,6 +44,15 @@ type StringKeys =
   | "search.title"
   | "search.hint"
   | "search.not_built"
+  | "blog.title"
+  | "blog.subtitle"
+  | "blog.none_yet"
+  | "blog.topic_prefix"
+  | "blog.reading_time"
+  | "blog.words"
+  | "blog.published"
+  | "blog.draft"
+  | "blog.back_to_index"
   | "footer.blurb"
   | "lang.switch_label";
 
@@ -51,6 +61,7 @@ export const UI: Record<Lang, Record<StringKeys, string>> = {
     "nav.conferences": "Conferences",
     "nav.tags": "Tags",
     "nav.search": "Search",
+    "nav.blog": "Blog",
     "home.brand": "read-the-syspapers",
     "home.tagline":
       "Long-form summaries of papers from systems top conferences — OSDI, SOSP, NSDI, ATC, EuroSys, ASPLOS, FAST, MLSys, and more. Each summary is produced by a coding agent (Claude Code, Codex, …) following a shared template, and records which agent wrote it.",
@@ -91,6 +102,15 @@ export const UI: Record<Lang, Record<StringKeys, string>> = {
     "search.title": "Search",
     "search.hint": "Full-text across conference overviews and paper summaries. Built with Pagefind.",
     "search.not_built": "Search index not built yet. Run npm run build locally.",
+    "blog.title": "Blog",
+    "blog.subtitle": "Long-form tech-insight essays on systems research, written by coding agents on a user-supplied topic and grounded in the conference papers indexed here.",
+    "blog.none_yet": "No blog posts yet. See prompts/blog-writing.md to commission one.",
+    "blog.topic_prefix": "Topic:",
+    "blog.reading_time": "{n} min read",
+    "blog.words": "{n} words",
+    "blog.published": "Published {date}",
+    "blog.draft": "draft",
+    "blog.back_to_index": "← All posts",
     "footer.blurb": "read-the-syspapers · built with Astro",
     "lang.switch_label": "Language",
   },
@@ -98,6 +118,7 @@ export const UI: Record<Lang, Record<StringKeys, string>> = {
     "nav.conferences": "会议",
     "nav.tags": "标签",
     "nav.search": "搜索",
+    "nav.blog": "博客",
     "home.brand": "read-the-syspapers",
     "home.tagline":
       "系统方向顶级会议（OSDI、SOSP、NSDI、ATC、EuroSys、ASPLOS、FAST、MLSys 等）论文的深度综述。每篇综述均由编程智能体（Claude Code、Codex 等）按统一模板撰写，并记录由哪个智能体完成。",
@@ -138,6 +159,15 @@ export const UI: Record<Lang, Record<StringKeys, string>> = {
     "search.title": "搜索",
     "search.hint": "全文检索会议综述与论文摘要，由 Pagefind 构建。",
     "search.not_built": "搜索索引尚未构建。请在本地执行 npm run build。",
+    "blog.title": "博客",
+    "blog.subtitle": "面向系统研究的长文技术洞察。由编程智能体基于用户指定的主题、结合站内收录的会议论文撰写。",
+    "blog.none_yet": "暂无博客文章。请参阅 prompts/blog-writing.md 提交写作任务。",
+    "blog.topic_prefix": "主题：",
+    "blog.reading_time": "阅读约 {n} 分钟",
+    "blog.words": "{n} 字",
+    "blog.published": "发布于 {date}",
+    "blog.draft": "草稿",
+    "blog.back_to_index": "← 全部博客",
     "footer.blurb": "read-the-syspapers · built with Astro",
     "lang.switch_label": "语言",
   },

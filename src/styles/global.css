@@ -1496,6 +1496,218 @@ blockquote {
 }
 
 /* =========================================================================
+   Blog
+   ========================================================================= */
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.15rem;
+  margin-top: 1.75rem;
+}
+
+.blog-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 1.4rem 1.5rem 1.3rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--fg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.22s ease,
+              border-color 0.22s ease;
+}
+
+.blog-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 35%, transparent));
+  z-index: 1;
+}
+
+.blog-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+
+/* Stretched-link pattern: the title anchor covers the whole card so the card is
+   clickable, while tag chips and the written-by badge (which are themselves links
+   or inline elements) sit above it with their own click targets. */
+.blog-card__link {
+  color: var(--fg-strong);
+  text-decoration: none;
+}
+
+.blog-card__link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.blog-card:hover .blog-card__link {
+  color: var(--accent);
+}
+
+.blog-card .chip,
+.blog-card .written-by {
+  position: relative;
+  z-index: 2;
+}
+
+.blog-card__topic {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: var(--muted);
+  letter-spacing: 0.01em;
+}
+
+.blog-card__topic .label {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+.blog-card__topic .value {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.blog-card__title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--fg-strong);
+  letter-spacing: -0.01em;
+  font-variation-settings: "opsz" 36;
+  margin: 0;
+}
+
+.blog-card__title a {
+  color: inherit;
+  border-bottom: none;
+}
+
+.blog-card__title a:hover {
+  text-decoration: none;
+}
+
+.blog-card__oneline {
+  margin: 0;
+  font-size: 0.96rem;
+  line-height: 1.55;
+  color: var(--muted-strong);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.blog-card__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.blog-card__meta .dot { opacity: 0.5; }
+
+.blog-card__tags {
+  margin-top: auto;
+  padding-top: 0.2rem;
+}
+
+.draft-pill {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 0.12rem 0.55rem;
+  margin-left: 0.3rem;
+  border-radius: 999px;
+  color: var(--muted-strong);
+  background: var(--bg-soft);
+  border: 1px solid var(--border-strong);
+}
+
+/* Blog post detail header */
+.blog-post-header {
+  padding: 1rem 0 1.5rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.75rem;
+}
+
+.blog-post-header h1 {
+  margin-top: 0.3rem;
+  font-variation-settings: "opsz" 96, "SOFT" 30;
+}
+
+.blog-post-header__topic {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 0.2rem;
+  font-family: var(--font-sans);
+}
+
+.blog-post-header__topic .label {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 600;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.blog-post-header__topic .value {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.blog-post-header__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0.6rem 0 0.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.blog-post-header__meta .dot { opacity: 0.5; }
+
+@media (max-width: 720px) {
+  .blog-grid { grid-template-columns: 1fr; gap: 0.85rem; }
+  .blog-card { padding: 1.1rem 1.2rem 1.1rem; }
+  .blog-card__title { font-size: 1.12rem; }
+}
+
+/* =========================================================================
    Link row (paper detail external links)
    ========================================================================= */
 .link-row {
