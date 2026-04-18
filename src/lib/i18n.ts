@@ -4,10 +4,19 @@ type StringKeys =
   | "nav.conferences"
   | "nav.tags"
   | "nav.search"
-  | "nav.about"
   | "home.tagline"
   | "home.recent"
   | "home.brand"
+  | "home.featured"
+  | "home.featured.sub"
+  | "home.shuffle"
+  | "home.venues"
+  | "home.venues.sub"
+  | "home.stat.papers"
+  | "home.stat.venues"
+  | "home.stat.years"
+  | "home.venue.papers_one"
+  | "home.venue.papers_other"
   | "conferences.all"
   | "conferences.all.subtitle"
   | "conferences.official_site"
@@ -34,7 +43,6 @@ type StringKeys =
   | "search.title"
   | "search.hint"
   | "search.not_built"
-  | "about.title"
   | "footer.blurb"
   | "lang.switch_label";
 
@@ -43,11 +51,20 @@ export const UI: Record<Lang, Record<StringKeys, string>> = {
     "nav.conferences": "Conferences",
     "nav.tags": "Tags",
     "nav.search": "Search",
-    "nav.about": "About",
     "home.brand": "read-the-syspapers",
     "home.tagline":
       "Long-form summaries of papers from systems top conferences — OSDI, SOSP, NSDI, ATC, EuroSys, ASPLOS, FAST, MLSys, and more. Each summary is produced by a coding agent (Claude Code, Codex, …) following a shared template, and records which agent wrote it.",
     "home.recent": "Recently summarized",
+    "home.featured": "Featured picks",
+    "home.featured.sub": "A handful of papers, freshly shuffled.",
+    "home.shuffle": "shuffle",
+    "home.venues": "Venues",
+    "home.venues.sub": "Browse all conferences by venue.",
+    "home.stat.papers": "papers",
+    "home.stat.venues": "venues",
+    "home.stat.years": "years",
+    "home.venue.papers_one": "{n} paper",
+    "home.venue.papers_other": "{n} papers",
     "conferences.all": "Conferences",
     "conferences.all.subtitle": "All venues, most recent first.",
     "conferences.official_site": "official site",
@@ -74,19 +91,27 @@ export const UI: Record<Lang, Record<StringKeys, string>> = {
     "search.title": "Search",
     "search.hint": "Full-text across conference overviews and paper summaries. Built with Pagefind.",
     "search.not_built": "Search index not built yet. Run npm run build locally.",
-    "about.title": "About",
-    "footer.blurb": "PhD-depth summaries of systems papers · produced by coding agents",
+    "footer.blurb": "read-the-syspapers · built with Astro",
     "lang.switch_label": "Language",
   },
   "zh-cn": {
     "nav.conferences": "会议",
     "nav.tags": "标签",
     "nav.search": "搜索",
-    "nav.about": "关于",
     "home.brand": "read-the-syspapers",
     "home.tagline":
       "系统方向顶级会议（OSDI、SOSP、NSDI、ATC、EuroSys、ASPLOS、FAST、MLSys 等）论文的深度综述。每篇综述均由编程智能体（Claude Code、Codex 等）按统一模板撰写，并记录由哪个智能体完成。",
     "home.recent": "最近整理",
+    "home.featured": "精选推荐",
+    "home.featured.sub": "随机抽取的几篇论文。",
+    "home.shuffle": "换一批",
+    "home.venues": "会议列表",
+    "home.venues.sub": "按会议浏览全部收录。",
+    "home.stat.papers": "篇论文",
+    "home.stat.venues": "个会议",
+    "home.stat.years": "年",
+    "home.venue.papers_one": "{n} 篇",
+    "home.venue.papers_other": "{n} 篇",
     "conferences.all": "会议",
     "conferences.all.subtitle": "全部会议，按时间倒序排列。",
     "conferences.official_site": "官方网站",
@@ -113,8 +138,7 @@ export const UI: Record<Lang, Record<StringKeys, string>> = {
     "search.title": "搜索",
     "search.hint": "全文检索会议综述与论文摘要，由 Pagefind 构建。",
     "search.not_built": "搜索索引尚未构建。请在本地执行 npm run build。",
-    "about.title": "关于",
-    "footer.blurb": "系统方向论文的博士级综述 · 由编程智能体生成",
+    "footer.blurb": "read-the-syspapers · built with Astro",
     "lang.switch_label": "语言",
   },
 };

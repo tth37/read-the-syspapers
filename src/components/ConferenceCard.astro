@@ -13,18 +13,19 @@ interface Props {
   paperCount?: number;
 }
 
-const { lang, id, venue, year, title, overviewStatus, paperCount } = Astro.props;
-const statusKey =
-  overviewStatus === "complete" ? "card.overview_complete" :
-  overviewStatus === "in-progress" ? "card.in_progress" :
-  "card.awaiting_summary";
+const { lang, id, venue, year, title, paperCount } = Astro.props;
+const countKey = paperCount === 1 ? "card.papers_count_one" : "card.papers_count_other";
 ---
 
-<a class="card" href={conferenceHref(lang, id)}>
-  <span class="sub">{venue} · {year}</span>
+<a class="conf-card" data-venue={venue} href={conferenceHref(lang, id)}>
+  <div class="venue-row">
+    <span class="venue">{venue}</span>
+    <span class="year">{year}</span>
+  </div>
   <span class="title">{title}</span>
-  <span class={`chip status-${overviewStatus}`}>{t(lang, statusKey)}</span>
-  {paperCount !== undefined && paperCount > 0 && (
-    <span class="sub">{t(lang, paperCount === 1 ? "card.papers_count_one" : "card.papers_count_other", { n: paperCount })}</span>
-  )}
+  <span class={`paper-count${!paperCount ? " is-empty" : ""}`}>
+    {paperCount && paperCount > 0
+      ? t(lang, countKey, { n: paperCount })
+      : t(lang, "card.papers_count_other", { n: 0 })}
+  </span>
 </a>

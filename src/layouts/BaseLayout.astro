@@ -1,6 +1,6 @@
 ---
 import "../styles/global.css";
-import { LANGS, homeHref, conferencesHref, tagsHref, searchHref, aboutHref, url } from "../lib/paths";
+import { LANGS, homeHref, conferencesHref, tagsHref, searchHref, url } from "../lib/paths";
 import type { Lang } from "../lib/paths";
 import { t, UI } from "../lib/i18n";
 
@@ -35,6 +35,12 @@ const otherLangs = LANGS.filter((l) => l !== lang);
     <title>{pageTitle}</title>
     {description && <meta name="description" content={description} />}
     <link rel="icon" type="image/svg+xml" href={url(lang, "/favicon.svg").replace(`/${lang}/favicon.svg`, "/favicon.svg")} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
   </head>
   <body>
     <header class="site">
@@ -44,7 +50,6 @@ const otherLangs = LANGS.filter((l) => l !== lang);
           <a href={conferencesHref(lang)}>{t(lang, "nav.conferences")}</a>
           <a href={tagsHref(lang)}>{t(lang, "nav.tags")}</a>
           <a href={searchHref(lang)}>{t(lang, "nav.search")}</a>
-          <a href={aboutHref(lang)}>{t(lang, "nav.about")}</a>
         </nav>
         <div class="lang-switch" aria-label={t(lang, "lang.switch_label")}>
           {otherLangs.map((l) => (

@@ -1,8 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import ConferenceCard from "../../components/ConferenceCard.astro";
-import { LANGS, paperHref, idLang, baseSlug, paperParts } from "../../lib/paths";
+import { LANGS, paperHref, conferenceHref, idLang, baseSlug, paperParts } from "../../lib/paths";
 import type { Lang } from "../../lib/paths";
 import { t, UI } from "../../lib/i18n";
 
@@ -15,73 +14,196 @@ const lang = Astro.params.lang as Lang;
 const conferences = (await getCollection("conferences")).filter((c) => idLang(c.id) === lang);
 const papers = (await getCollection("papers")).filter((p) => paperParts(p.id).lang === lang);
 
+// ---- Paper counts per conference base ----
 const paperCountByConf: Record<string, number> = {};
 for (const p of papers) {
   const { conference } = paperParts(p.id);
   paperCountByConf[conference] = (paperCountByConf[conference] ?? 0) + 1;
 }
 
-const byVenue = new Map<string, typeof conferences>();
+// ---- Group by venue → list of { year, id, paperCount } ----
+type VenueEntry = { year: number; id: string; paperCount: number };
+const venueMap = new Map<string, VenueEntry[]>();
 for (const c of conferences) {
-  const list = byVenue.get(c.data.venue) ?? [];
-  list.push(c);
-  byVenue.set(c.data.venue, list);
+  const base = baseSlug(c.id);
+  const entry: VenueEntry = { year: c.data.year, id: base, paperCount: paperCountByConf[base] ?? 0 };
+  const list = venueMap.get(c.data.venue) ?? [];
+  list.push(entry);
+  venueMap.set(c.data.venue, list);
 }
 
-const venueOrder = Array.from(byVenue.keys()).sort();
-for (const v of venueOrder) {
-  byVenue.get(v)!.sort((a, b) => b.data.year - a.data.year);
-}
+// Sort years within venue desc; order venues by most-recent-year desc, then alphabetical.
+const venues = Array.from(venueMap.entries()).map(([venue, entries]) => {
+  entries.sort((a, b) => b.year - a.year);
+  const totalPapers = entries.reduce((s, e) => s + e.paperCount, 0);
+  return { venue, entries, totalPapers, latestYear: entries[0]?.year ?? 0 };
+});
+venues.sort((a, b) => {
+  if (b.latestYear !== a.latestYear) return b.latestYear - a.latestYear;
+  return a.venue.localeCompare(b.venue);
+});
 
-const recent = papers
-  .slice()
-  .sort((a, b) => b.data.summary_date.getTime() - a.data.summary_date.getTime())
-  .slice(0, 6);
+// ---- Stats ----
+const totalPapers = papers.length;
+const totalVenues = venueMap.size;
+const allYears = new Set<number>();
+for (const c of conferences) allYears.add(c.data.year);
+const totalYears = allYears.size;
+
+// ---- Featured data (all papers) for SSR-random-initial + client-side shuffle ----
+// Build a lightweight record per paper.
+const featuredPool = papers.map((p) => {
+  const { conference, slug } = paperParts(p.id);
+  const conf = conferences.find((c) => baseSlug(c.id) === conference);
+  return {
+    title: p.data.title,
+    oneline: p.data.oneline ?? "",
+    authors: p.data.authors.slice(0, 3).join(", ") + (p.data.authors.length > 3 ? ", et al." : ""),
+    venue: conf?.data.venue ?? conference,
+    year: conf?.data.year ?? null,
+    href: paperHref(lang, conference, slug),
+    star: p.data.star,
+  };
+});
+
+// Shuffle at build time so initial SSR is random across builds.
+function shuffle<T>(arr: T[]): T[] {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+const initialFeatured = shuffle(featuredPool).slice(0, 3);
 ---
 
 <BaseLayout title={UI[lang]["home.brand"]} description={t(lang, "home.tagline")} lang={lang}>
-  <section class="hero">
-    <h1>{UI[lang]["home.brand"]}</h1>
-    <p>{t(lang, "home.tagline")}</p>
+  <section class="home-hero">
+    <div class="home-hero__title">
+      <h1>{UI[lang]["home.brand"]}</h1>
+      <div class="home-hero__flourish" aria-hidden="true"></div>
+    </div>
+    <p class="home-hero__tag">{t(lang, "home.tagline")}</p>
+    <div class="home-stats">
+      <div class="home-stat">
+        <span class="value">{totalPapers}</span>
+        <span class="label">{t(lang, "home.stat.papers")}</span>
+      </div>
+      <div class="home-stat">
+        <span class="value">{totalVenues}</span>
+        <span class="label">{t(lang, "home.stat.venues")}</span>
+      </div>
+      <div class="home-stat">
+        <span class="value">{totalYears}</span>
+        <span class="label">{t(lang, "home.stat.years")}</span>
+      </div>
+    </div>
   </section>
 
-  {recent.length > 0 && (
-    <section>
-      <h2>{t(lang, "home.recent")}</h2>
-      <ul class="paper-list">
-        {recent.map((p) => {
-          const { conference, slug } = paperParts(p.id);
-          return (
-            <li>
-              <div class="title"><a href={paperHref(lang, conference, slug)}>{p.data.title}</a></div>
-              <div class="authors">{p.data.authors.slice(0, 3).join(", ")}{p.data.authors.length > 3 ? ", et al." : ""} · {conference}</div>
-              {p.data.oneline && <p class="oneline">{p.data.oneline}</p>}
-            </li>
-          );
-        })}
-      </ul>
+  {featuredPool.length > 0 && (
+    <section class="featured">
+      <div class="section-head">
+        <div>
+          <h2>{t(lang, "home.featured")}</h2>
+          <p class="section-sub">{t(lang, "home.featured.sub")}</p>
+        </div>
+        <button class="shuffle-btn" id="shuffle-btn" type="button" aria-label={t(lang, "home.shuffle")}>
+          <span class="icon" aria-hidden="true">↻</span>
+          <span>{t(lang, "home.shuffle")}</span>
+        </button>
+      </div>
+      <div class="featured-grid" id="featured-grid">
+        {initialFeatured.map((p) => (
+          <a class="featured-card" href={p.href} data-venue={p.venue}>
+            <span class="venue-pill">{p.venue}{p.year && <> · {p.year}</>}</span>
+            <span class="title">{p.star && <span class="star" title="must-read">★ </span>}{p.title}</span>
+            {p.oneline && <p class="oneline">{p.oneline}</p>}
+            <span class="authors">{p.authors}</span>
+          </a>
+        ))}
+      </div>
+      <script type="application/json" id="featured-pool" set:html={JSON.stringify(featuredPool)}></script>
+      <script is:inline>
+        (function () {
+          const poolEl = document.getElementById("featured-pool");
+          const grid = document.getElementById("featured-grid");
+          const btn = document.getElementById("shuffle-btn");
+          if (!poolEl || !grid || !btn) return;
+          const pool = JSON.parse(poolEl.textContent || "[]");
+          if (pool.length === 0) return;
+
+          function escape(s) {
+            return String(s).replace(/[&<>"']/g, (c) => ({
+              "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+            }[c]));
+          }
+          function shuffle(a) {
+            const arr = a.slice();
+            for (let i = arr.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+          }
+          function render() {
+            const pick = shuffle(pool).slice(0, 3);
+            grid.innerHTML = pick.map((p) => {
+              const star = p.star ? '<span class="star" title="must-read">★ </span>' : "";
+              const oneline = p.oneline ? `<p class="oneline">${escape(p.oneline)}</p>` : "";
+              const yearFrag = p.year ? ` · ${p.year}` : "";
+              return `
+                <a class="featured-card" href="${escape(p.href)}" data-venue="${escape(p.venue)}">
+                  <span class="venue-pill">${escape(p.venue)}${yearFrag}</span>
+                  <span class="title">${star}${escape(p.title)}</span>
+                  ${oneline}
+                  <span class="authors">${escape(p.authors)}</span>
+                </a>
+              `;
+            }).join("");
+          }
+          btn.addEventListener("click", () => {
+            btn.classList.add("spinning");
+            grid.classList.add("is-fading");
+            setTimeout(() => {
+              render();
+              grid.classList.remove("is-fading");
+              setTimeout(() => btn.classList.remove("spinning"), 300);
+            }, 140);
+          });
+          // Re-shuffle on first load so each visit sees something different (SSR picks a build-time random).
+          render();
+        })();
+      </script>
     </section>
   )}
 
-  {venueOrder.map((venue) => (
-    <section>
-      <h2>{venue}</h2>
-      <div class="grid">
-        {byVenue.get(venue)!.map((c) => {
-          const base = baseSlug(c.id);
-          return (
-            <ConferenceCard
-              lang={lang}
-              id={base}
-              venue={c.data.venue}
-              year={c.data.year}
-              title={c.data.title}
-              overviewStatus={c.data.overview_status}
-              paperCount={paperCountByConf[base] ?? 0}
-            />
-          );
-        })}
+  <section class="venues-section">
+    <div class="section-head">
+      <div>
+        <h2>{t(lang, "home.venues")}</h2>
+        <p class="section-sub">{t(lang, "home.venues.sub")}</p>
       </div>
-    </section>
-  ))}
+    </div>
+    <div class="venue-grid">
+      {venues.map((v) => (
+        <article class="venue-showcase" data-venue={v.venue} data-latest-year={v.latestYear}>
+          <div class="venue-showcase__header">
+            <span class="venue-showcase__name">{v.venue}</span>
+            <span class="venue-showcase__count">
+              {t(lang, v.totalPapers === 1 ? "home.venue.papers_one" : "home.venue.papers_other", { n: v.totalPapers })}
+            </span>
+          </div>
+          <div class="venue-showcase__years">
+            {v.entries.map((e) => (
+              <a class="venue-showcase__year" href={conferenceHref(lang, e.id)}>
+                <span class="year-num">{e.year}</span>
+                {e.paperCount > 0 && <span class="papers">· {e.paperCount}</span>}
+              </a>
+            ))}
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
 </BaseLayout>

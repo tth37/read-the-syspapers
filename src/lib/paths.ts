@@ -75,7 +75,3 @@ export function tagHref(lang: Lang, tag: string): string {
 export function searchHref(lang: Lang): string {
   return url(lang, "/search");
 }
-
-export function aboutHref(lang: Lang): string {
-  return url(lang, "/about");
-}
