@@ -7,7 +7,7 @@ dates: "March 22-26, 2026"
 url: "https://www.asplos-conference.org/asplos2026/program/"
 paper_count_expected: 152
 overview_status: complete
-written_by: claude-opus
+written_by: "Claude Opus 4.7 (Claude Code)"
 summary_date: 2026-04-18
 categories:
   - id: llm-inference
