@@ -25,13 +25,13 @@ SBFUZZ 把 DSP fuzzing 当成一个职责划分问题，而不只是把现有 em
 
 ## 问题背景
 
-论文指出，现有 embedded fuzzers 与 DSP 之间有根本错位。像 `uAFL`、`SHiFT` 这样的系统默认目标设备能在每次执行后把 testcase 和 coverage 报告发回主机，再由主机决定下一步。这个模式对更富的 embedded board 还成立，但 DSP 往往是 bare metal Type-3 设备：内存很小、调试接口慢、几乎没有系统软件可借力。把它们强行塞进 host-centric 循环里，协调成本很快就会压过真正的 fuzzing 工作。而且 DSP 常处在通信、医疗等 cyber-physical 链路中，失败时更像死循环、bus error，或状态损坏后的继续执行，而不是干净的进程退出。
+论文指出，现有 embedded fuzzers 与 DSP 之间有根本错位。像 `uAFL`、`SHiFT` 这样的系统默认目标设备能在每次执行后把 testcase 和 coverage 报告发回主机，再由主机决定下一步。这个模式对更富的 embedded board 还成立，但 DSP 往往是 bare metal Type-3 设备：内存很小、带外接口带宽低、几乎没有系统软件可借力，而且很多时候连可用的公开 emulator 都没有。把它们强行塞进 host-centric 循环里，协调成本很快就会压过真正的 fuzzing 工作。而且 DSP 常处在通信、医疗、交通等 cyber-physical 链路中，失败时更像死循环、bus error，或“已经偏离正确行为却继续跑下去”的执行，而不是干净的进程退出。
 
 ## 核心洞察
 
 最重要的洞察是，fuzzer 的职责应该按“发生频率”划分，而不是按“开发方便”划分。几乎每个输入都会做的工作，例如从本地 seed pool 取种子、做 mutation、执行 SUT、判断局部 coverage 是否增长，都应放在 DSP 端；低频但较重的工作，例如保存 crash、合并全局 coverage、刷新种子池、重写 instrumented binary，则交给主机。这样主机就能退出 steady-state fuzzing 的关键路径。
 
-第二个洞察是，AFL 风格的完整 coverage bitmap 对 DSP 来说过于昂贵。大多数 testcase 并不会带来新覆盖，因此每次都生成并传输整份 bitmap 只是在消耗 RAM 和带宽。SBFUZZ 改为记录紧凑的代码 offset，并把已经发现的 tracing 点逐步改写成 `NOP`，使 tracing 成本随着 campaign 推进而下降。
+第二个洞察是，AFL 风格的完整 coverage bitmap 对 DSP 来说过于昂贵。大多数 testcase 并不会带来新覆盖，因此每次都生成并传输整份 bitmap 只是在消耗 RAM 和带宽。SBFUZZ 改用论文所说的 dynamic coverage-guided tracing：只记录紧凑的代码 offset，只在少数真正有意思的执行上报信息，并把已经发现的 tracing 点逐步改写成 `NOP`，使 tracing 成本随着 campaign 推进而下降。
 
 ## 设计
 
@@ -41,11 +41,13 @@ SBFUZZ 由 host engine 和 DSP engine 组成。主机保存 global seed pool、g
 
 crash 处理直接利用硬件行为：timer 识别 hang，硬件中断捕获 bus error 和 data log error，主机可见的 breakpoint 则负责把崩溃事件暴露出来，方便主机取回输入并重新刷写或重启板子。最关键的 dynamic coverage-guided tracing 则在 assembly 层插入轻量 trampoline call，记录 basic block offset 而不是完整 PC。主机一旦收到 coverage 增长事件，就把对应 tracing 点改写成 `NOP`，既维持 host-device binary coherence，也持续降低 tracing 开销。
 
+主机与 DSP 的协作不是靠持续轮询，而是靠三个 hardware breakpoint 形成的事件点：pool refresh、crash handler 和 coverage-increasing handler。这个细节很重要，因为它把主机变成 event-driven 的协调者。steady state 下，DSP 可以一直在本地变异并执行，主机只在少数事件发生时介入，论文也因此声称单个主机可以同时服务多个目标设备。
+
 ## 实验评估
 
 实验平台是 `100MHz` 的 TI `TMS320C5515`，每个 benchmark 运行 24 小时，每组做 5 次试验。工作负载共 15 个程序，其中 6 个来自 BDTImark2000 和 Embench DSP 1.0，另外 9 个是更复杂的 DSP 应用。作为对照，作者把 `uAFL`/`SHiFT` 风格的 embedded fuzzer 直接移植到同一块 DSP 上，并尽量保持 seed selection 与 mutation 一致，使比较重点落在职责划分和 tracing 策略上。
 
-结果与论文的瓶颈分析高度一致。SBFUZZ 的平均吞吐是基线的 `17.4x`，在 `servo` 上最高达到 `1900x`，而频繁崩溃的 `telecom` 上最小也还有 `1.3x`。覆盖率平均提升 `2.6x`，平均绝对覆盖约为 `83%`。作者还报告了 `2491` 个崩溃输入，人工归并后对应 `34` 个唯一 bug，而 instrumentation 开销平均只让二进制增大 `7.0%`。对核心论点来说，这组实验是有说服力的；它的问题不在机制是否成立，而在可移植性还没有被更广泛地证明。
+结果与论文的瓶颈分析高度一致。SBFUZZ 的平均吞吐是基线的 `17.4x`，在 `servo` 上最高达到 `1900x`，而频繁崩溃的 `telecom` 上最小也还有 `1.3x`。覆盖率平均提升 `2.6x`，平均绝对覆盖约为 `83%`。作者还报告了 `2491` 个崩溃输入，人工归并后对应 `34` 个唯一 bug，而 instrumentation 开销平均只让二进制增大 `7.0%`；按论文的说法，这比传统 desktop 风格 instrumentation overhead 低了约 `28x`。对核心论点来说，这组实验是有说服力的；它的问题不在机制是否成立，而在可移植性还没有被更广泛地证明。
 
 ## 创新性与影响
 

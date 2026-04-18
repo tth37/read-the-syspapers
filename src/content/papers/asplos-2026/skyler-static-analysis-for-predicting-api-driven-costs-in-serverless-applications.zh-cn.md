@@ -54,7 +54,7 @@ Skyler 的设计分三段。第一段是构建 SEG：系统解析 IaC 模板和 
 
 ## 创新性与影响
 
-和 _Eismann et al. (ICPE '20)_、_Mahgoub et al. (OSDI '22)_ 相比，Skyler 把分析对象从“已经部署后的执行与 compute 调优”转向了“部署前的 API-side billing semantics”。和 _Ferreira et al. (PLDI '24)_、_Gupta et al. (S&P '25)_ 相比，它则把 cross-function dependency graph 风格的静态分析从安全、合规和权限问题转向了 cloud economics。这个组合很新鲜：它不是把静态分析拿来报漏洞，而是直接产出开发者能拿来做预算与架构决策的查询结果。
+和 _Mahgoub et al. (OSDI '22)_、_Zhang et al. (NSDI '24)_ 相比，Skyler 把分析对象从“已经部署后的执行与 compute 调优”转向了“部署前的 API-side billing semantics”。和 _Ferreira et al. (PLDI '24)_、_Gupta et al. (S&P '25)_ 相比，它则把 cross-function dependency graph 风格的静态分析从安全、合规和权限问题转向了 cloud economics。这个组合很新鲜：它不是把静态分析拿来报漏洞，而是直接产出开发者能拿来做预算与架构决策的查询结果。
 
 因此，这篇论文最可能影响两类人。一类是构建多服务 serverless backend 的工程团队，他们终于能在流量到来前检查架构里的成本陷阱；另一类是系统研究者，他们可以把“成本是程序属性”这件事看成一个明确的问题定义。论文还有一个安全侧的外溢价值：当系统能指出哪些路径和输入会放大账单时，它也在帮助开发者理解 denial-of-wallet 风险暴露在哪里。
 
@@ -64,7 +64,7 @@ Skyler 的设计分三段。第一段是构建 SEG：系统解析 IaC 模板和 
 
 ## 相关工作
 
-- _Eismann et al. (ICPE '20)_ — Predicting the costs of serverless workflows 从已部署工作流的测量结果估算成本；Skyler 则在部署前静态推导 API 成本方程。
+- _Zhang et al. (NSDI '24)_ — Jolteon 通过运行时 profiling 和配置调优去优化已部署的 serverless workflow；Skyler 则在部署前估算 API-driven cost。
 - _Mahgoub et al. (OSDI '22)_ — Orion 优化运行时的 sizing、bundling 和 prewarming；Skyler 估算部署前的 API 费用。
 - _Ferreira et al. (PLDI '24)_ — MDG 提供了 Skyler 扩展的依赖图基座，Skyler 在其上加入 trigger、resource 和 pricing-aware sink。
 - _Gupta et al. (S&P '25)_ — Growlithe 关注合规与权限；Skyler 把类似的 whole-application reasoning 转向货币成本估算。

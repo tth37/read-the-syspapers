@@ -25,13 +25,13 @@ SBFUZZ treats DSP fuzzing as a decomposition problem, not just a porting problem
 
 ## Problem
 
-The paper starts from a mismatch between existing embedded fuzzers and actual DSP targets. Systems such as `uAFL` and `SHiFT` assume the target can exchange a test case and a coverage report with the host on every iteration. That is workable for richer embedded boards, but DSPs are often bare-metal Type-3 devices with small memories, slow debug interfaces, and no operating-system services to hide communication cost. On such hardware, host-device coordination becomes the bottleneck. That matters because DSPs sit in telecommunications, medical devices, and other cyber-physical pipelines, and their failures look like infinite loops, bus errors, or corrupted continued execution rather than clean process exits.
+The paper starts from a mismatch between existing embedded fuzzers and actual DSP targets. Systems such as `uAFL` and `SHiFT` assume the target can exchange a test case and a coverage report with the host on every iteration. That is workable for richer embedded boards, but DSPs are often bare-metal Type-3 devices with small memories, low-bandwidth out-of-band interfaces, no operating-system services, and often no practical public emulator. On such hardware, host-device coordination becomes the bottleneck. That matters because DSPs sit in telecommunications, medical devices, transportation, and other cyber-physical pipelines, and their failures look like infinite loops, bus errors, or divergent-but-continuing execution rather than clean process exits.
 
 ## Key Insight
 
 The core claim is that fuzzing duties should be split by frequency, not by convenience. Work that happens on nearly every input, such as seed selection from a local pool, mutation, execution, and local coverage checks, belongs on the DSP. Work that happens rarely, such as crash storage, global coverage merging, pool refresh, and binary rewriting, belongs on the host. Once that split is enforced, the host leaves the steady-state critical path.
 
-The second insight is that AFL-style full bitmaps are the wrong coverage abstraction here. Most inputs are not coverage-increasing, so building and shipping a full bitmap each time wastes RAM and bandwidth. SBFUZZ instead logs compact code offsets and rewrites discovered tracing sites to `NOP`s, so coverage reporting gets cheaper as fuzzing progresses.
+The second insight is that AFL-style full bitmaps are the wrong coverage abstraction here. Most inputs are not coverage-increasing, so building and shipping a full bitmap each time wastes RAM and bandwidth. SBFUZZ instead uses what the paper calls dynamic coverage-guided tracing: it logs compact code offsets, reports only rare interesting executions, and rewrites discovered tracing sites to `NOP`s so coverage reporting gets cheaper as fuzzing progresses.
 
 ## Design
 
@@ -41,11 +41,13 @@ Inside the loop, the DSP performs AFL-style deterministic and random mutations. 
 
 Crash handling uses the hardware model directly. Timers detect hangs, interrupts catch bus and data-log errors, and a host-visible breakpoint marks the crash handler so the host can recover the input and reflash or reset the board. Coverage tracing is done with assembly-time trampoline calls that record basic-block offsets rather than full PCs. When the DSP finds a coverage-increasing input, the host merges the local trace into global coverage and rewrites those tracing sites to `NOP`s in its own binary copy, preserving coherence for later reflashes while steadily reducing tracing cost.
 
+Communication is organized around three hardware-breakpoint coordination points rather than continuous polling: pool refresh, crash handling, and coverage-increasing execution. That detail matters because it makes the host event-driven. In the steady state, the DSP mutates and executes locally while the host waits for one of those rare conditions and can, in principle, serve multiple devices concurrently.
+
 ## Evaluation
 
 The evaluation uses a TI `TMS320C5515` at `100MHz`, 24-hour campaigns, and five trials per benchmark. The workload set contains 15 programs: six kernels from BDTImark2000 and Embench DSP 1.0 plus nine larger DSP applications. The reference system is a direct `uAFL`/`SHiFT`-style port to the same DSP, with seed selection and mutation kept close to SBFUZZ so the comparison isolates decomposition and tracing.
 
-The results match the bottleneck story. SBFUZZ improves throughput by `17.4x` on average and by as much as `1900x` on `servo`, where per-input host coordination dominates. The smallest gain is `1.3x` on `telecom`, which crashes often enough that both systems keep returning to the host. Coverage rises by `2.6x` on average, with about `83%` mean absolute coverage. The paper reports `2491` crashing inputs, reduced by manual triage to `34` unique bugs, and instrumentation overhead averages only `7.0%` extra binary size. For the main claim, this is convincing: the workloads exercise the targeted bottlenecks, though the evidence is stronger on mechanism than on broad portability.
+The results match the bottleneck story. SBFUZZ improves throughput by `17.4x` on average and by as much as `1900x` on `servo`, where per-input host coordination dominates. The smallest gain is `1.3x` on `telecom`, which crashes often enough that both systems keep returning to the host. Coverage rises by `2.6x` on average, with about `83%` mean absolute coverage. The paper reports `2491` crashing inputs, reduced by manual triage to `34` unique bugs, and instrumentation overhead averages only `7.0%` extra binary size, which the authors position as a `28x` improvement over traditional desktop-style instrumentation overhead. For the main claim, this is convincing: the workloads exercise the targeted bottlenecks, though the evidence is stronger on mechanism than on broad portability.
 
 ## Novelty & Impact
 

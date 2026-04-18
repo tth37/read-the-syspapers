@@ -54,7 +54,7 @@ I also found the comparison against manual methods persuasive. The paper decompo
 
 ## Novelty & Impact
 
-Compared with _Eismann et al. (ICPE '20)_ and _Mahgoub et al. (OSDI '22)_, Skyler shifts the unit of analysis from deployed executions and compute tuning to API-side billing semantics captured statically before launch. Compared with _Ferreira et al. (PLDI '24)_ and _Gupta et al. (S&P '25)_, it repurposes cross-function dependency-graph analysis from security and compliance toward cloud economics. That combination feels genuinely new: a static-analysis paper that produces developer-facing budgeting queries rather than vulnerabilities or compiler diagnostics.
+Compared with _Mahgoub et al. (OSDI '22)_ and _Zhang et al. (NSDI '24)_, Skyler shifts the unit of analysis from deployed executions and compute tuning to API-side billing semantics captured statically before launch. Compared with _Ferreira et al. (PLDI '24)_ and _Gupta et al. (S&P '25)_, it repurposes cross-function dependency-graph analysis from security and compliance toward cloud economics. That combination feels genuinely new: a static-analysis paper that produces developer-facing budgeting queries rather than vulnerabilities or compiler diagnostics.
 
 The likely impact is on two groups. Practitioners building multi-service serverless backends get a way to inspect architectural cost hazards before traffic arrives, and researchers get a concrete formulation of "cost as a program property" that is richer than calculator inputs but lighter-weight than full dynamic profiling. The paper also has a security-adjacent implication: by surfacing cost-amplifying paths and inputs, it gives developers another angle on denial-of-wallet exposure.
 
@@ -64,7 +64,7 @@ The model still has clear boundaries. If API-call counts inside a loop cannot be
 
 ## Related Work
 
-- _Eismann et al. (ICPE '20)_ — Predicting the costs of serverless workflows estimates workflow costs from deployment-oriented measurements; Skyler instead derives API-cost equations statically before deployment.
+- _Zhang et al. (NSDI '24)_ — Jolteon optimizes deployed serverless workflows through runtime profiling and configuration choices, whereas Skyler estimates API-driven cost before deployment.
 - _Mahgoub et al. (OSDI '22)_ — Orion optimizes runtime sizing, bundling, and prewarming; Skyler estimates API charges before deployment.
 - _Ferreira et al. (PLDI '24)_ — MDG supplies the dependency-graph substrate that Skyler extends with triggers, resources, and pricing-aware sinks.
 - _Gupta et al. (S&P '25)_ — Growlithe applies cross-function static analysis to compliance and permissions; Skyler redirects similar whole-application reasoning toward monetary cost estimation.
