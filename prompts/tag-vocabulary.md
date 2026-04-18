@@ -69,8 +69,11 @@ one whose scope rule fits more tightly.
 ## Hardware & compilers
 
 - **`hardware`** — custom silicon, FPGAs, ASICs, accelerators other than GPUs. NICs go in
-  `smartnic`; GPU-specific work goes in `gpu`.
+  `smartnic`; GPU-specific work goes in `gpu`. Quantum hardware goes in `quantum`.
 - **`compilers`** — compiler-driven systems work, auto-tuning, tensor compilers, JITs.
+- **`quantum`** — quantum computing: quantum architectures, QEC/fault-tolerant circuits,
+  quantum compilation and scheduling, analog-quantum simulation. Use in addition to (not
+  instead of) `hardware`/`compilers` when those also apply.
 
 ## Security & correctness
 
