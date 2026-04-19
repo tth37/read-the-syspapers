@@ -181,8 +181,11 @@ it is the failure mode to avoid.
 - The H2 section order and section-level arguments. If `§ The evidence` has three
   H3 subsections in English, the Chinese version has the same three subsections in
   the same order defending the same sub-claims.
-- The list of papers cited in each section — same papers, same links (rewrite the
-  URL prefix `/en/papers/...` → `/zh-cn/papers/...`).
+- The list of papers cited in each section — same papers, same link text. The
+  relative `../papers/<conf>/<slug>.md` form is language-neutral: it resolves to
+  the English paper page when cited from a `.en.md` file and to the Chinese page
+  when cited from a `.zh-cn.md` file, so you copy the markdown link verbatim
+  across the two twins.
 - Every empirical number and every external URL citation. A paper reporting 24×
   concurrency is still 24× in Chinese; a link to Marc Brooker's blog stays linked
   to the same post.
@@ -218,8 +221,11 @@ it is the failure mode to avoid.
 - In YAML frontmatter, do not put any quote pair — Chinese or ASCII — around
   phrases inside the `oneline` value. Use nothing. (The outer `"..."` that
   delimits the YAML string itself stays ASCII, per YAML spec.)
-- Every inline link in the English body has a counterpart in the Chinese body
-  with the URL's language prefix rewritten: `/en/papers/...` → `/zh-cn/papers/...`.
+- Every inline link in the English body has a counterpart in the Chinese body.
+  Because paper citations use the language-neutral `../papers/<conf>/<slug>.md`
+  form, the markdown link copies across unchanged; the rehype pipeline resolves
+  each file's own language at build time. External URLs likewise stay identical
+  across the two bodies.
 
 ### Phase 7 — Count words and fill in frontmatter
 
@@ -263,20 +269,29 @@ Before you declare done, verify:
 
 ## Link-style rules
 
-- **Paper pages on this site** — use a site-relative link to the language-matched
-  path, not a markdown-file-relative link:
-  - English: `[Shenango](/en/papers/osdi-2025/shenango)`
-  - Chinese: `[Shenango](/zh-cn/papers/osdi-2025/shenango)`
+- **Paper pages on this site** — use a markdown-file-relative link with the
+  `.md` extension. Blog posts live under `src/content/blog/`, so paper paths
+  resolve via `..`:
 
-  (Paper summary files are markdown-file-relative when linked from inside a
-  conference overview, because both live under `src/content/`. Blog posts are
-  rendered at a different route, so use absolute-from-root.)
+  ```markdown
+  [Shenango](../papers/osdi-2025/shenango.md)
+  ```
+
+  The `.md` extension and path are language-neutral: a rehype pass resolves
+  each link against the source file's language (`.en.md` → `/en/papers/...`,
+  `.zh-cn.md` → `/zh-cn/papers/...`) at build time. This is the same convention
+  conference overviews use, so the English and Chinese twins of a post share
+  the same link text verbatim.
 
 - **External URLs** — plain inline markdown link with descriptive text. Never bare
   URLs: `[vLLM's blog post on continuous batching](https://…)` not `(https://…)`.
-- **Conference pages** — `/en/conferences/<slug>` or `/zh-cn/conferences/<slug>`.
-- **Tag pages** — `/en/tags/<tag>` or `/zh-cn/tags/<tag>`. Use sparingly; tag pages
-  aren't always interesting to read.
+- **Conference pages** — `../conferences/<slug>.md` (same language-neutral
+  form). Resolves to `/en/conferences/<slug>` or `/zh-cn/conferences/<slug>`
+  depending on the source file.
+- **Tag pages** — no file-relative form is available (tag pages aren't content
+  collection entries). Use `/en/tags/<tag>` or `/zh-cn/tags/<tag>` and
+  hand-rewrite the prefix in the Chinese twin. Use sparingly; tag pages aren't
+  always interesting to read.
 
 ---
 
