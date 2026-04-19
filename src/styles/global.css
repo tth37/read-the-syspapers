@@ -1003,6 +1003,100 @@ blockquote {
   font-family: var(--font-sans);
 }
 
+.word-cloud {
+  position: relative;
+  margin: 1.5rem 0 2.5rem;
+  padding: 2rem 1.75rem 2.25rem;
+  width: 100%;
+  max-width: none;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background:
+    radial-gradient(ellipse at top left, color-mix(in oklab, var(--accent-soft) 45%, transparent), transparent 60%),
+    linear-gradient(var(--bg), var(--bg));
+}
+
+.word-cloud__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 0.45em 1.1em;
+  text-align: left;
+  line-height: 1.15;
+}
+
+.word-cloud__item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.22em;
+  font-family: var(--font-serif);
+  font-size: var(--wc-size, 1rem);
+  font-weight: var(--wc-weight, 500);
+  color: var(--wc-color, var(--fg));
+  text-decoration: none;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  position: relative;
+  padding: 0.05em 0.1em;
+  transition: color 0.18s ease, transform 0.18s ease;
+}
+
+.word-cloud__tag {
+  position: relative;
+}
+
+.word-cloud__tag::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.05em;
+  height: 0.06em;
+  background: currentColor;
+  opacity: 0;
+  transform: scaleX(0.2);
+  transform-origin: left;
+  transition: opacity 0.18s ease, transform 0.22s ease;
+}
+
+.word-cloud__count {
+  font-family: var(--font-sans);
+  font-size: 0.42em;
+  font-weight: 500;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  color: var(--muted);
+  align-self: flex-start;
+  transform: translateY(0.35em);
+  letter-spacing: 0.02em;
+}
+
+.word-cloud__item:hover,
+.word-cloud__item:focus-visible {
+  color: var(--accent);
+  outline: none;
+}
+
+.word-cloud__item:hover .word-cloud__tag::after,
+.word-cloud__item:focus-visible .word-cloud__tag::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.word-cloud__item:hover .word-cloud__count,
+.word-cloud__item:focus-visible .word-cloud__count {
+  color: var(--accent);
+}
+
+@media (max-width: 640px) {
+  .word-cloud {
+    padding: 1.5rem 0.75rem 1.75rem;
+  }
+  .word-cloud__inner {
+    gap: 0.35em 0.7em;
+  }
+}
+
 /* =========================================================================
    Search
    ========================================================================= */

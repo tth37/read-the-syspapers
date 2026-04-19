@@ -38,6 +38,7 @@ type StringKeys =
   | "paper.written_by_prefix"
   | "paper.not_yet_summarized"
   | "tags.title"
+  | "tags.subtitle"
   | "tags.none_yet"
   | "tags.n_papers_one"
   | "tags.n_papers_other"
@@ -96,6 +97,7 @@ export const UI: Record<Lang, Record<StringKeys, string>> = {
     "paper.written_by_prefix": "written by:",
     "paper.not_yet_summarized": "not yet summarized",
     "tags.title": "Tags",
+    "tags.subtitle": "Every concept surfaced in the paper summaries. Larger type means more papers; click a tag to see them all.",
     "tags.none_yet": "No tags yet — summaries haven't been generated.",
     "tags.n_papers_one": "{n} paper tagged",
     "tags.n_papers_other": "{n} papers tagged",
@@ -153,6 +155,7 @@ export const UI: Record<Lang, Record<StringKeys, string>> = {
     "paper.written_by_prefix": "撰写者：",
     "paper.not_yet_summarized": "尚未综述",
     "tags.title": "标签",
+    "tags.subtitle": "论文综述中出现的全部概念。字号越大代表关联论文越多，点击标签可查看对应论文。",
     "tags.none_yet": "暂无标签 —— 综述尚未生成。",
     "tags.n_papers_one": "共 {n} 篇论文标记为",
     "tags.n_papers_other": "共 {n} 篇论文标记为",

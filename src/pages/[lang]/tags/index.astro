@@ -17,17 +17,54 @@ for (const p of papers) {
   for (const tag of p.data.tags) counts.set(tag, (counts.get(tag) ?? 0) + 1);
 }
 const entries = Array.from(counts.entries()).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+const maxCount = entries.length ? entries[0][1] : 1;
+const minCount = entries.length ? entries[entries.length - 1][1] : 1;
+
+const MIN_REM = 1.0;
+const MAX_REM = 2.8;
+const norm = (n: number) => {
+  if (maxCount === minCount) return 0.5;
+  const t = (n - minCount) / (maxCount - minCount);
+  return Math.pow(t, 0.7);
+};
+const sizeOf = (n: number) => MIN_REM + norm(n) * (MAX_REM - MIN_REM);
+const weightOf = (n: number) => 380 + Math.round(norm(n) * 260);
+// Darker/stronger for more-frequent tags, softer for the long tail.
+const toneOf = (n: number) => {
+  const t = norm(n);
+  return `color-mix(in oklab, var(--fg-strong) ${Math.round(55 + t * 45)}%, var(--muted))`;
+};
+
+// Deterministic shuffle so the cloud mixes sizes visually instead of descending.
+const cloud = entries.slice();
+for (let i = cloud.length - 1; i > 0; i--) {
+  const seed = (i * 2654435761) >>> 0;
+  const j = seed % (i + 1);
+  [cloud[i], cloud[j]] = [cloud[j], cloud[i]];
+}
 ---
 
 <BaseLayout title={t(lang, "tags.title")} lang={lang}>
   <h1>{t(lang, "tags.title")}</h1>
+  <p class="meta">{t(lang, "tags.subtitle")}</p>
   {entries.length === 0 ? (
     <p class="meta">{t(lang, "tags.none_yet")}</p>
   ) : (
-    <div class="tag-cloud">
-      {entries.map(([tag, n]) => (
-        <a class="chip" href={tagHref(lang, tag)}>#{tag} <span class="count">{n}</span></a>
-      ))}
-    </div>
+    <figure class="word-cloud">
+      <div class="word-cloud__inner">
+        {cloud.map(([tag, n]) => (
+          <a
+            class="word-cloud__item"
+            href={tagHref(lang, tag)}
+            style={`--wc-size:${sizeOf(n).toFixed(3)}rem;--wc-weight:${weightOf(n)};--wc-color:${toneOf(n)};`}
+            aria-label={`${tag} (${n})`}
+          >
+            <span class="word-cloud__tag">{tag}</span>
+            <span class="word-cloud__count" aria-hidden="true">{n}</span>
+          </a>
+        ))}
+      </div>
+    </figure>
   )}
 </BaseLayout>
