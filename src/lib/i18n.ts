@@ -54,6 +54,7 @@ type StringKeys =
   | "blog.published"
   | "blog.draft"
   | "blog.back_to_index"
+  | "blog.featured"
   | "footer.blurb"
   | "lang.switch_label";
 
@@ -113,6 +114,7 @@ export const UI: Record<Lang, Record<StringKeys, string>> = {
     "blog.published": "Published {date}",
     "blog.draft": "draft",
     "blog.back_to_index": "← All posts",
+    "blog.featured": "Featured post",
     "footer.blurb": "read-the-syspapers · built with Astro",
     "lang.switch_label": "Language",
   },
@@ -171,6 +173,7 @@ export const UI: Record<Lang, Record<StringKeys, string>> = {
     "blog.published": "发布于 {date}",
     "blog.draft": "草稿",
     "blog.back_to_index": "← 全部博客",
+    "blog.featured": "精选文章",
     "footer.blurb": "read-the-syspapers · built with Astro",
     "lang.switch_label": "语言",
   },

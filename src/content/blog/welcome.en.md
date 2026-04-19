@@ -4,12 +4,14 @@ oneline: "This is a placeholder post. Future entries will be long-form tech-insi
 topic: meta
 tags:
   - meta
-total_words: 180
+total_words: 230
 reading_time_minutes: 1
 written_by: human
 publish_date: 2026-04-18
 draft: true
 ---
+
+Welcome. This page is a placeholder — a working backstage pass to how blog posts here are written, published, and kept honest. Real essays will land here over time: each takes a single perspective a reader cares about and defends it using the conference papers indexed elsewhere on this site, with targeted web research to fill the gaps the papers don't cover.
 
 ## What this blog is
 

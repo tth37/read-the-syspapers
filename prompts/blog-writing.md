@@ -143,6 +143,30 @@ If a section in the outline has no cites, it's probably filler — cut it or mer
 - **Voice:** confident but falsifiable. State the thesis assertively, but make each
   supporting claim narrow enough that the reader can point at what would refute it.
 
+#### Opening paragraph (lead)
+
+The first paragraph of the rendered post — the paragraph directly under `## Thesis`
+(or `## 核心论点` in the Chinese version) — is styled specially by the site: the
+whole paragraph renders visibly larger than the rest of the body, and its first
+letter is dropped as an ornamental cap in the display serif. Write it with that
+treatment in mind:
+
+- **2–4 sentences, standalone hook.** The reader should get the thesis and why it
+  matters from this paragraph alone; the rest of the essay defends it.
+- **Start with prose, not structure.** The first block under `## Thesis` must be a
+  plain paragraph — no bullet list, no numbered list, no code block, no image, no
+  blockquote. Those break both the drop cap and the lead typography.
+- **Open on a word, not a symbol.** The drop cap treats the first character as a
+  single ornamental glyph. "KV caches are the central abstraction of modern LLM
+  serving…" drop-caps cleanly. An opener that begins with a number ("90% of…"), a
+  quotation mark (`"A thesis…"`), or a bracket (`[Shenango] argues…`) does not —
+  don't start with one.
+- **No leading inline link.** If the very first word is part of a markdown link, the
+  drop cap is applied to the link color and underline, which looks wrong. Push the
+  link at least one short phrase into the paragraph.
+- Do not hand-code a `<span>` or other HTML to force the drop cap — the CSS handles
+  it automatically for whatever first character your paragraph starts with.
+
 ### Phase 6 — Translate to Simplified Chinese
 
 - Translate in whole paragraphs, not sentence-by-sentence. The unit of meaning is the

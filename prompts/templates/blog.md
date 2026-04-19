@@ -75,6 +75,13 @@ draft: false
 
 ## Body skeleton (English)
 
+> **Opening paragraph is the lead.** The paragraph directly under `## Thesis` is
+> rendered larger than the rest of the body with a drop cap on its first letter.
+> Write it as a standalone 2–4-sentence hook, start on a plain word (not a number,
+> quote, bracket, or bare link), and don't lead with a list or code block. Full
+> rules: [`prompts/blog-writing.md`](../blog-writing.md) → Phase 5 → "Opening
+> paragraph (lead)".
+
 ```markdown
 ## Thesis
 
@@ -113,6 +120,12 @@ helps. Otherwise the inline links are sufficient.
 ```
 
 ## Body skeleton (Simplified Chinese)
+
+> **开篇段即是 lead 段落。** 紧接 `## 核心论点` 的第一段会被站点以更大字号呈现，
+> 首字母（首字）还会被放大为装饰性下沉字。请把它写成一段独立的 2–4 句话钩子：首字
+> 用普通汉字或字母开头（不要以数字、引号、方括号或整段超链接开头），也不要以列表或
+> 代码块开头。完整约束见 [`prompts/blog-writing.md`](../blog-writing.md) 第 5 阶段
+> "Opening paragraph (lead)"。
 
 ```markdown
 ## 核心论点

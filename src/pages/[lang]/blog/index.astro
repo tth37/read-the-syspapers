@@ -2,7 +2,9 @@
 import { getCollection } from "astro:content";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import BlogCard from "../../../components/BlogCard.astro";
-import { LANGS, idLang, baseSlug } from "../../../lib/paths";
+import TagChip from "../../../components/TagChip.astro";
+import WrittenByBadge from "../../../components/WrittenByBadge.astro";
+import { LANGS, idLang, baseSlug, blogPostHref } from "../../../lib/paths";
 import type { Lang } from "../../../lib/paths";
 import { t } from "../../../lib/i18n";
 
@@ -27,6 +29,16 @@ posts.sort((a, b) => {
   const bd = b.data.publish_date instanceof Date ? b.data.publish_date : new Date(b.data.publish_date);
   return bd.getTime() - ad.getTime();
 });
+
+const featuredIndex = posts.findIndex((p) => !p.data.draft);
+const featured = featuredIndex === -1 ? null : posts[featuredIndex];
+const rest = featured ? posts.filter((_, i) => i !== featuredIndex) : posts;
+const featuredWordsLabel = featured
+  ? featured.data.total_words.toLocaleString(lang === "zh-cn" ? "zh-CN" : "en")
+  : "";
+const featuredReadingTime = featured
+  ? readingMinutes(featured.data.total_words, featured.data.reading_time_minutes, lang)
+  : 0;
 ---
 
 <BaseLayout title={t(lang, "blog.title")} description={t(lang, "blog.subtitle")} lang={lang}>
@@ -35,11 +47,34 @@ posts.sort((a, b) => {
     <p>{t(lang, "blog.subtitle")}</p>
   </div>
 
+  {featured && (
+    <article class="blog-feature">
+      <p class="blog-feature__eyebrow">{t(lang, "blog.featured")}</p>
+      <p class="blog-feature__topic">
+        <span class="label">{t(lang, "blog.topic_prefix")}</span>
+        <span class="value">#{featured.data.topic}</span>
+      </p>
+      <h2 class="blog-feature__title">
+        <a href={blogPostHref(lang, baseSlug(featured.id))}>{featured.data.title}</a>
+      </h2>
+      <p class="blog-feature__oneline">{featured.data.oneline}</p>
+      <p class="blog-feature__meta">
+        <span>{t(lang, "blog.reading_time", { n: featuredReadingTime })}</span>
+        <span class="dot" aria-hidden="true">·</span>
+        <span>{t(lang, "blog.words", { n: featuredWordsLabel })}</span>
+      </p>
+      <div class="blog-feature__tags">
+        {featured.data.tags.map((tg) => <TagChip lang={lang} tag={tg} />)}
+        <WrittenByBadge lang={lang} writtenBy={featured.data.written_by} date={featured.data.publish_date} />
+      </div>
+    </article>
+  )}
+
   {posts.length === 0 ? (
     <p class="meta">{t(lang, "blog.none_yet")}</p>
-  ) : (
+  ) : rest.length === 0 ? null : (
     <div class="blog-grid">
-      {posts.map((p) => (
+      {rest.map((p) => (
         <BlogCard
           lang={lang}
           slug={baseSlug(p.id)}
