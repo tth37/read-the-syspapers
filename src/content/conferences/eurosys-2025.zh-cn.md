@@ -2,10 +2,14 @@
 venue: EuroSys
 year: 2025
 title: "EuroSys '25"
+location: "Rotterdam, Netherlands"
+dates: "2025-03-30 to 2025-04-03"
 url: "https://2025.eurosys.org/"
-overview_status: pending
-written_by: null
-summary_date: null
+paper_count_expected: 85
+overview_status: in-progress
+written_by: "Claude Opus 4.7 (Claude Code)"
+summary_date: 2026-04-19
+categories: []
 ---
 
-_暂无综述。请按照 [`prompts/conference-overview.md`](../../../prompts/conference-overview.md) 运行智能体流程以生成本页内容。_
+_综述进行中。_
