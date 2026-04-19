@@ -125,10 +125,11 @@ names the claim of each section and which pieces of evidence it relies on:
 
 If a section in the outline has no cites, it's probably filler — cut it or merge it.
 
-### Phase 5 — Draft English first, then translate
+### Phase 5 — Draft English first, then re-express in Chinese
 
-- Write English first. The argumentative structure drives the essay; translating
-  afterwards preserves it. (Writing Chinese first and translating backwards tends to
+- Write English first. The argumentative structure drives the essay; re-expressing
+  it in Chinese afterwards preserves the structure while letting you tune sentence
+  rhythm for Chinese. (Writing Chinese first and translating backwards tends to
   produce a weaker English version because Chinese prose tolerates more implicit
   connectors than English does.)
 - Keep paragraphs tight: **3–6 sentences**. A blog post is not a paper. Readers scan;
@@ -167,18 +168,58 @@ treatment in mind:
 - Do not hand-code a `<span>` or other HTML to force the drop cap — the CSS handles
   it automatically for whatever first character your paragraph starts with.
 
-### Phase 6 — Translate to Simplified Chinese
+### Phase 6 — Re-express in Simplified Chinese
 
-- Translate in whole paragraphs, not sentence-by-sentence. The unit of meaning is the
-  paragraph.
-- Keep technical identifiers in English: paper titles, system names (Shenango, vLLM,
-  FlashAttention), benchmark names, venue abbreviations (OSDI '25), product names.
-- Translate headings. Use the same heading as the English version, translated
-  idiomatically. (See [`templates/blog.md`](templates/blog.md).)
-- Rewrite the `oneline` independently in Chinese — don't literal-translate it. The
-  English `oneline` is an English hook; the Chinese `oneline` is a Chinese hook.
-- Every inline link in the English body becomes a link in the Chinese body, but
-  rewrite the URL's language prefix: `/en/papers/...` → `/zh-cn/papers/...`.
+The Chinese file is **not a translation** of the English file — it is the same essay
+re-written for a Chinese reader. Aim for prose that would feel native if the English
+version did not exist. Translation-shaped Chinese ("翻译腔") reads as stilted, and
+it is the failure mode to avoid.
+
+**What must match across the two files:**
+
+- The thesis. Both leads defend the same claim.
+- The H2 section order and section-level arguments. If `§ The evidence` has three
+  H3 subsections in English, the Chinese version has the same three subsections in
+  the same order defending the same sub-claims.
+- The list of papers cited in each section — same papers, same links (rewrite the
+  URL prefix `/en/papers/...` → `/zh-cn/papers/...`).
+- Every empirical number and every external URL citation. A paper reporting 24×
+  concurrency is still 24× in Chinese; a link to Marc Brooker's blog stays linked
+  to the same post.
+- The counter-evidence identity. The strongest objection named in English is the
+  strongest objection named in Chinese.
+
+**What should vary so that the result reads as native Chinese prose:**
+
+- Sentence boundaries. Merge, split, or reorder sentences within a paragraph to
+  suit Chinese rhythm. A long English sentence with three semicolons often reads
+  better as two or three Chinese sentences joined by 而 / 但 / 于是 / 换句话说.
+- Transitions and connectors. Use Chinese-native hinges (其实、不过、照例、说到底、
+  换句话说) instead of literal renderings of "however", "in other words", "that
+  said".
+- Paragraph count, within ±1 per section. You may split a dense English paragraph
+  or merge two short ones if the result flows better.
+- Rhetorical register. Idioms, metaphors, and emphases can be re-chosen for
+  Chinese — don't transliterate an English metaphor that doesn't land.
+- The `oneline`. Write it fresh for a Chinese reader, not as a translation of the
+  English hook.
+
+**Local rules:**
+
+- Keep technical identifiers in English: paper titles, system names (Shenango,
+  vLLM, FlashAttention), benchmark names, venue abbreviations (OSDI '25), product
+  names, function/flag names. The surrounding prose is Chinese.
+- Translate H2/H3 headings idiomatically (e.g. `## Thesis` → `## 核心论点`).
+- **Inline quotes in the Chinese body use 「」, never ASCII `"..."`.** This
+  applies to scare quotes around Chinese phrases (「镜像查表」、「启动本身」) and
+  to English phrases embedded in Chinese prose (「reflections and optimizations」、
+  「workset」). ASCII `"` in Chinese text looks like a translation artifact and
+  can also break YAML when it leaks into frontmatter.
+- In YAML frontmatter, do not put any quote pair — Chinese or ASCII — around
+  phrases inside the `oneline` value. Use nothing. (The outer `"..."` that
+  delimits the YAML string itself stays ASCII, per YAML spec.)
+- Every inline link in the English body has a counterpart in the Chinese body
+  with the URL's language prefix rewritten: `/en/papers/...` → `/zh-cn/papers/...`.
 
 ### Phase 7 — Count words and fill in frontmatter
 
@@ -210,6 +251,12 @@ Before you declare done, verify:
 - [ ] Both files exist; `title`, `topic`, `tags`, `written_by`, `publish_date`,
       `draft` are identical across them; `oneline` and `total_words` are
       language-specific.
+- [ ] The Chinese version reads as originally-Chinese prose, not a translated
+      English essay. The two files share thesis, evidence, citations, numbers,
+      and section structure — but not sentence boundaries, not idioms, not
+      transition words.
+- [ ] Inline quotes in the Chinese body use 「」. No ASCII `"..."` appears in
+      Chinese prose (frontmatter YAML string delimiters excepted).
 - [ ] Neither file has leftover template placeholder text.
 
 ---

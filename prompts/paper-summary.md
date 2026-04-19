@@ -38,11 +38,15 @@ output path.
 3. **Choose 3–6 tags** from the vocabulary. Tags are English kebab-case and stay identical
    in both language files. If no existing tag fits a genuinely-new topic, mention the
    missing tag in your `My Notes` section; do not invent one in `tags:`.
-4. **Write the English version first**, then translate to Chinese. Aim for **700–950 words
-   of body** in each language (not counting frontmatter or headings).
+4. **Write the English version first**, then re-express in Chinese (not a sentence-level
+   translation — see [`../AGENTS.md`](../AGENTS.md) hard rule #2, "The Chinese file is a
+   re-expression, not a translation", for the discipline). Aim for **700–950 words of
+   body** in the English version; the Chinese version ends up in a similar range of
+   characters (~1500–2500) but match the English evidence and claims, not the sentence
+   count.
 5. **Produce both files.** An .en.md without a .zh-cn.md (or vice versa) is a failure.
 
-## What stays in English vs. what gets translated
+## What stays in English vs. what is language-specific
 
 **English only, in both files:**
 - `title` — paper title is a proper noun.
@@ -51,14 +55,25 @@ output path.
 - `category` — the id is kebab-case English.
 - URLs (`pdf_url`, `doi_url`, `code_url`, `project_url`).
 
-**Translated per file:**
-- `oneline` — one-sentence TL;DR in the target language (≤ 180 characters). Surface on
-  the conference page as a one-line hook under the title.
-- Body prose — every H2 section, every sentence.
+**Per-language (`.en.md` vs `.zh-cn.md`):**
+- `oneline` — one-sentence TL;DR in the file's language (≤ 180 characters). Surfaced
+  on the conference page as a one-line hook under the title. Write the Chinese
+  `oneline` fresh for a Chinese reader, not as a literal translation of the English
+  hook.
+- Body prose — every H2 section. The Chinese body is a re-expression of the English
+  one: same claim, same mechanism, same numbers, same paper-relative citations, same
+  H2 section order — but sentence boundaries, transitions, and idioms tuned for
+  Chinese. See [`../AGENTS.md`](../AGENTS.md) hard rule #2 for the match-vs-vary
+  rules that apply across all content types in this repo.
 
-**Section headings** also translate: `## TL;DR` stays in English; `## Problem` becomes
-`## 问题背景`; etc. See the per-language skeletons in
-[`templates/paper.md`](templates/paper.md).
+**Section headings** also translate: `## TL;DR` stays in English in both files (it's
+an established abbreviation); `## Problem` becomes `## 问题背景`; etc. See the
+per-language skeletons in [`templates/paper.md`](templates/paper.md).
+
+**Inline quotes in the Chinese body use 「」, never ASCII `"..."`.** Applies to
+scare-quotes around Chinese phrases (「工作集」) and to English phrases embedded in
+Chinese prose (「workset」). ASCII `"` in Chinese text reads as a translation
+artifact and also breaks YAML if it leaks into `oneline`.
 
 ## Required output structure (both languages)
 
@@ -137,3 +152,5 @@ renders consistently.
 - Do not run `npm run build` yourself — the caller will validate after the batch finishes.
 - Do not translate the paper title, tag names, author names, or section ids across
   languages. Only `oneline` and the section bodies differ between files.
+- The Chinese body is a re-expression, not a literal translation, and its inline
+  quotes use 「」. Full rule in [`../AGENTS.md`](../AGENTS.md) #2.

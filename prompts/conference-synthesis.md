@@ -36,8 +36,12 @@ The per-paper summaries live under `src/content/papers/<conference_slug>/` as
 5. **Collect stats**: paper count, rough breakdown by category, any interesting ratios
    (e.g. industry vs. academia authorship).
 6. **Write the body twice.** Once in English into `<slug>.en.md`, once in Simplified
-   Chinese into `<slug>.zh-cn.md`. Same structure, same claims; translate naturally (don't
-   word-for-word). Paper titles and tags stay in English in the Chinese file.
+   Chinese into `<slug>.zh-cn.md`. The Chinese version is a re-expression, not a
+   translation — same themes, same paper picks, same numbers, same H2 section order,
+   but sentence boundaries and transitions tuned for Chinese readers. See
+   [`../AGENTS.md`](../AGENTS.md) hard rule #2 for the match-vs-vary discipline and
+   the 「」 quoting convention. Paper titles and tags stay in English in the Chinese
+   file.
 
 ## Body structure (both languages)
 
@@ -116,9 +120,18 @@ Short bullet list:
 ### 7. Chinese-file specifics
 
 The `.zh-cn.md` body mirrors the English structure — same intro paragraph, same
-theme bullets, same must-reads, same stats. Translate naturally (not
-word-for-word). Paper titles and system names stay in English; body prose is
-Simplified Chinese. Section headings translate per the table above.
+theme bullets, same must-reads, same stats, same paper citations (with
+`../papers/...` relative links unchanged; the `.md` extension resolves the same
+on both language surfaces). It is **not a sentence-level translation**: merge,
+split, or reorder sentences within a paragraph so the result reads as native
+Chinese prose; use Chinese-native connectors (其实、不过、换句话说) instead of
+literal renderings of English ones. Full discipline in
+[`../AGENTS.md`](../AGENTS.md) hard rule #2.
+
+Paper titles, system names, venue abbreviations stay in English; body prose is
+Simplified Chinese. Section headings translate per the table above. Inline
+quotes in the Chinese body use 「」, never ASCII `"..."` (the latter reads as
+翻译腔 and also breaks YAML if it leaks into `oneline`).
 
 ## Frontmatter update
 

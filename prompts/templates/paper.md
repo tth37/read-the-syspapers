@@ -133,6 +133,14 @@ summary_date: 2026-04-17
 
 - Keep `TL;DR` literal as a heading in both languages — it's a well-known abbreviation and
   renders consistently.
+- The Chinese body is a re-expression of the English one, not a sentence-level
+  translation. Same TL;DR / key insight / mechanism / numbers / H2 order; sentence
+  boundaries and idioms are free to diverge so the Chinese reads natively. Full
+  match-vs-vary rules in [`../../AGENTS.md`](../../AGENTS.md) hard rule #2.
+- **Inline quotes in the Chinese body use 「」, never ASCII `"..."`.** This covers
+  scare-quotes around Chinese phrases and embedded English phrases alike. ASCII `"`
+  in Chinese prose reads as a translation artifact and can break YAML if it leaks
+  into `oneline`.
 - In the Chinese body, keep paper titles, product names, system names, and venue
   abbreviations in English. Prose around them is Chinese.
 - The related-work citations stay in English in both files (they reference English-titled

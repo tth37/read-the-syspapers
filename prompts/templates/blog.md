@@ -1,7 +1,12 @@
 # Blog post template
 
 Each blog post ships as **two** files with identical frontmatter (except `oneline` and
-`total_words`, which are per-language) plus a translated body:
+`total_words`, which are per-language) plus a language-native body. The Chinese body
+is a re-expression of the English one, not a sentence-level translation — same thesis,
+same evidence, same citations, but sentence rhythms and idioms tuned for Chinese
+readers. See [`../blog-writing.md`](../blog-writing.md) Phase 6 for the discipline.
+
+The two files:
 
 - `src/content/blog/<slug>.en.md`
 - `src/content/blog/<slug>.zh-cn.md`
@@ -163,11 +168,19 @@ helps. Otherwise the inline links are sufficient.
 
 ## Notes on bilingual discipline
 
-- Paper titles, system names, and venue abbreviations stay in English in the Chinese body
-  (e.g. "Shenango"、"LLM"、"OSDI '25"). The surrounding prose is Chinese.
+- The Chinese body is a re-expression, not a translation. Keep thesis, evidence,
+  citations, numbers, and section structure in lockstep with English; let sentence
+  boundaries, transitions, paragraph count, and idioms vary so the Chinese reads as
+  native prose. Full rules in [`../blog-writing.md`](../blog-writing.md) Phase 6.
+- Paper titles, system names, and venue abbreviations stay in English in the Chinese
+  body (Shenango、LLM、OSDI '25). The surrounding prose is Chinese.
 - Section headings translate. The `Thesis` heading becomes `核心论点`, etc.
 - `title` stays in English in both frontmatter files (proper noun). Only `oneline` and
   the body prose differ across languages.
+- **Inline quotes in the Chinese body use 「」, never ASCII `"..."`.** Applies to
+  scare quotes around Chinese phrases and to embedded English phrases. ASCII `"` in
+  Chinese prose reads as a translation artifact and can also break YAML if it leaks
+  into the `oneline` value.
 - When inlining a link to a paper page, use the language-appropriate URL:
   - `<slug>.en.md` → `/en/papers/<conf-slug>/<paper-slug>`
   - `<slug>.zh-cn.md` → `/zh-cn/papers/<conf-slug>/<paper-slug>`

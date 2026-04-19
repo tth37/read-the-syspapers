@@ -61,6 +61,34 @@ different agents handle the same papers.
    across the two files; `oneline` and body prose are per-language (and for blog posts,
    `total_words` too, since Chinese counts characters and English counts words). A file
    that exists in only one language fails review.
+
+   **The Chinese file is a re-expression, not a translation.** Both files defend the
+   same claim, cite the same papers, report the same numbers, and carry the same
+   H2 section order — but sentence boundaries, transitions, idioms, and paragraph
+   counts can differ. Aim for prose that would read as natively Chinese if the English
+   version did not exist; translation-shaped Chinese ("翻译腔") is the failure mode to
+   avoid. Practical rules that apply across paper summaries, conference overviews, and
+   blog posts:
+
+   - **Match across files:** thesis / key insight / mechanism, section order, paper
+     citations, every empirical number, every external URL.
+   - **Vary so it reads natively:** sentence boundaries (merge/split/reorder within a
+     paragraph), transitions (其实、不过、换句话说 instead of literal "however" /
+     "in other words"), paragraph count within ±1 per section, idioms, rhetorical
+     register. Write the Chinese `oneline` fresh, not as a translation of the English
+     one.
+   - **Inline quotes in Chinese bodies use 「」**, never ASCII `"..."`. This applies
+     to scare-quotes around Chinese phrases (「启动本身」) and to English phrases
+     embedded in Chinese prose (「workset」、「reflections and optimizations」).
+     ASCII `"` in Chinese text reads as a translation artifact and also breaks YAML
+     if it leaks into `oneline`.
+   - **Keep technical identifiers in English** inside the Chinese body: paper titles,
+     system names (Shenango, vLLM, FlashAttention), benchmark names, venue
+     abbreviations (OSDI '25), product names, function / flag names.
+   - **Rewrite URL language prefix** when carrying a link from the English body:
+     `/en/papers/...` → `/zh-cn/papers/...`.
+   - Role-specific prompts (paper summary, conference synthesis, blog) may add
+     further constraints; they never loosen the ones above.
 3. **Never fabricate.** No invented citations, no invented numbers, no invented author
    names or affiliations. If the paper does not specify something, write "the paper does
    not specify" (or the Chinese equivalent) rather than guessing. Do not copy the abstract
